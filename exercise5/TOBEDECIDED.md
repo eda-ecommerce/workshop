@@ -1,0 +1,29 @@
+# Open Issues
+
+- [X] (Eventing) Should events really be so coarsely defined? E.g order topic instead of OrderConfirmed, OrderRequested etc
+  - Should take into acoount things like retry topics + queues per topic, as they would give important metrics
+  - Yes topic should be split so that there is one data definition per topic, but can be delayed.
+- [X] (Architecture) Should common operations be bundle in an application service instead of the current handler-per operation approach?
+  - I think the injection of different operations into one another is bad
+  - It would be a nice architecture if we actually had use cases
+  - We settled for Services for now.
+- [X] (Architecture) Does the current Message/Event/Command abstraction make sense?
+  - In the end, I couple the specific event to a payload, which is basically controlled by the outside. This makes the abstraction a bit useless?
+  - On the other hand, I can then create the same event via different sources, but that might also be accomplished with the handler pattern, i think
+    - --> Partly makes sense. But might only be necessary to store different event types in different tables in a DB, if wanted
+    - The operation could be controlled by setting it in a field directly instead of using the class name
+- [ ] (Database Architecture) Embedding all the stuff seems bad for performance, maybe revisit
+  - Partly irrelevant, as ElementCollection does not embed under the hood
+  - Different issue is accessing two tables at the same time when saving a shipment with product
+- [X] (Business Logic) If a shipping address is registered beforehand, we need to check if that has already happened
+  - So there cannot be a simple "if exists throw" check to protect from overwriting something.
+    - In theory, the shipping service would OWN shipping addresses and provide them in some form to the frontend
+    - The frontend lets the user select an address / create a new one
+    - Frontend sends AddressId + OrderId to us, and we connect them both.
+      - This would mean that Address is an Entity --> loads of trouble currently but probably correct?
+      - The fact that it's an entity is supported by the fact that we need to select it via some query
+      - Could maybe still be implemented as a VO, with a shallow customer entity
+    - In practice: we will assume the frontend or anyone else will provide the complete shipping address and OrderId
+      - we do not really care what happens first, requesting the order (With contents) or setting he shipping address. Because this could also happen at different times if our event consumers lag
+      - So after receiving the address or the order, we need to check if both are present --> if so, set the order to prepared
+      - 

@@ -1,0 +1,23 @@
+{
+  "orderId": "00000000-0000-0000-0000-000000000123",
+  "customerId": "00000000-0000-0000-0000-000000123456",
+  "orderDate": "20-12-24",
+  "orderStatus": "InProcess",
+  "totalPrice": 10,
+  "items": [
+    {
+      "shoppingBasketItemId": "7d936cc0-9a57-4f4e-a4e5-ffa3c6855ee7",
+      "shoppingBasketId": "ecdad7b6-4e15-4d6c-9e84-8b133b6b7668",
+      "offeringId": "539ace7f-4593-4a19-ba60-d31118c061f5",
+      "quantity": 10,
+      "totalPrice": 10,
+      "itemState": "AVAILABLE"
+    }
+  ],
+  "products": [
+    {
+      "productId": "00000000-0000-0000-0000-000000000456",
+      "quantity": 10
+    }
+  ]
+}

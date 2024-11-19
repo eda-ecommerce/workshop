@@ -1,0 +1,47 @@
+volumes:
+  db:
+    driver: local
+services:
+  zookeeper:
+    container_name: zookeeper
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "22181:2181"
+
+  eda-kafka-1:
+    image: confluentinc/cp-kafka:latest
+    hostname: eda-kafka-1
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://eda-kafka-1:9092,PLAINTEXT_INTERNAL://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  cp-schema-registry:
+      depends_on:
+        - eda-kafka-1
+      environment:
+        SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
+        SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://eda-kafka-1:9092,PLAINTEXT_INTERNAL://localhost:29092
+        SCHEMA_REGISTRY_HOST_NAME: localhost
+        SCHEMA_REGISTRY_LISTENERS: http://localhost:8081
+        SCHEMA_REGISTRY_DEBUG: true
+      image: confluentinc/cp-schema-registry:7.7.1
+  db:
+    image: mysql:8.2.0
+    volumes:
+        - ./docker/provision/mysql/init:/docker-entrypoint-initdb.d
+        - db:/var/lib/mysql
+    environment:
+          MYSQL_ROOT_PASSWORD: verysecurepassword
+          MYSQL_ROOT_HOST: "%"
+    ports:
+      - '3306:3306'
