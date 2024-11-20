@@ -147,7 +147,7 @@ services:
   shopping-basket-db:
     image: mysql:8.2.0
     volumes:
-      - ./docker/provision/mysql/init:/docker-entrypoint-initdb.d
+      - ./provision-db:/docker-entrypoint-initdb.d
       - shopping-basket-service-data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: verysecurepassword
