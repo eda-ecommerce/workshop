@@ -3,6 +3,7 @@ volumes:
   offering-service-data:
   order-service-data:
   shopping-basket-service-data:
+  customer-service-data:
 
 services:
   # Kafka
@@ -157,9 +158,9 @@ services:
       MYSQL_PASSWORD: XpJjf6C67RXjA4
     healthcheck:
       test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -prootpassword" ]
-      interval: 5s
+      interval: 10s
       timeout: 10s
-      retries: 2
+      retries: 5
   shopping-basket-service:
     image: ghcr.io/eda-ecommerce/shoppingbasket-service:1.4.6
     container_name: shopping-basket-service
@@ -175,4 +176,37 @@ services:
       shared-kafka:
         condition: service_started
       shopping-basket-db:
+        condition: service_healthy
+  # Customer basket
+  customer-db:
+    image: mysql:8.2.0
+    volumes:
+      - ./provision-db:/docker-entrypoint-initdb.d
+      - customer-service-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: verysecurepassword
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: database
+      MYSQL_USER: customer
+      MYSQL_PASSWORD: UAdsIKaSB78ASD
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -prootpassword" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+  customer-service:
+    image: ghcr.io/eda-ecommerce/customer-service:1.1.7
+    container_name: customer-service
+    environment:
+      KAFKA_BOOTSTRAP_ADDRESS: shared-kafka:9092
+      DB_DBNAME: database
+      DB_USERNAME: customer
+      DB_HOST: customer-db:3306
+      DB_PASSWORD: UAdsIKaSB78ASD
+    ports:
+      - "8086:8080"
+    depends_on:
+      shared-kafka:
+        condition: service_started
+      customer-db:
         condition: service_healthy
