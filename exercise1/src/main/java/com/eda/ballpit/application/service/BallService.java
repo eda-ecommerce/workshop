@@ -23,11 +23,18 @@ public class BallService {
 
     public void throwBall(String color){
         Ball ball = new Ball(color);
-        ballProducer.produceBallString(ball);
+        ballProducer.produceBallColor(ball);
         ballProducer.produceBallJson(ball);
     }
 
+    public void saveBall(String color){
+        log.info("Saving ball with color: {}", color);
+        Ball ball = new Ball(color);
+        ballPit.save(ball);
+    }
+
     public void saveBall(Ball ball){
+        log.info("Saving ball: {}", ball);
         ballPit.save(ball);
     }
 

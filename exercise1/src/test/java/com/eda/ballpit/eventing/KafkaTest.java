@@ -3,65 +3,68 @@ package com.eda.ballpit.eventing;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.header.Header;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.kafka.KafkaContainer;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.kafka.test.utils.ContainerTestUtils;
+import org.springframework.test.annotation.DirtiesContext;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-import org.testcontainers.utility.DockerImageName;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Getter
-@Testcontainers
-@Slf4j(topic = "TestKafkaListener")
+@Slf4j
 @SpringBootTest
+@EmbeddedKafka(topics = {"ball-color", "ball-json", "shipment"}, partitions = 1, kraft = true)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@SuppressWarnings({"LoggingSimilarMessage"})
 public abstract class KafkaTest {
-	@Container
-	static final KafkaContainer kafkaContainer = new KafkaContainer(
-        DockerImageName.parse("apache/kafka:3.8.1")
-	);
-
 	// For consuming
-	private ArrayList<ConsumerRecord<String, String>> consumedShipmentRecords = new ArrayList<>();
-	private ArrayList<ConsumerRecord<String, String>> ballRecords = new ArrayList<>();
-	public final static ResettableCountDownLatch ballListenerLatch = new ResettableCountDownLatch(1);
-	public final static ResettableCountDownLatch shipmentListenerLatch = new ResettableCountDownLatch(1);
+	@Getter
+	private static final ArrayList<ConsumerRecord<String, String>> consumedShipmentRecords = new ArrayList<>();
+	@Getter
+	private static final ArrayList<ConsumerRecord<String, String>> ballColorRecords = new ArrayList<>();
+	@Getter
+	private static final ArrayList<ConsumerRecord<String, String>> ballJsonRecords = new ArrayList<>();
+
+	public final static ResettableCountDownLatch ballColorListenerLatch = new ResettableCountDownLatch(1);
+	public final static ResettableCountDownLatch ballJsonListenerLatch = new ResettableCountDownLatch(1);
 
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
-	@DynamicPropertySource
-	static void kafkaProperties(DynamicPropertyRegistry registry) {
-		registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
-	}
+	@Autowired
+	private ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory;
+
+	private static ConcurrentMessageListenerContainer<String, String> dummyContainer;
 
 	@BeforeEach
 	void setUpEach() {
-		ballListenerLatch.reset();
-		shipmentListenerLatch.reset();
-		consumedShipmentRecords = new ArrayList<>();
-		ballRecords = new ArrayList<>();
+		log.info("General Reset");
+		dummyContainer = kafkaListenerContainerFactory.createContainer("ball-color", "ball-json", "shipment");
+		dummyContainer.setupMessageListener(new DummyMessageListener());
+		dummyContainer.start();
+		ContainerTestUtils.waitForAssignment(dummyContainer, 3);
+		ballColorListenerLatch.reset();
+		ballJsonListenerLatch.reset();
+		consumedShipmentRecords.clear();
+		ballJsonRecords.clear();
+		ballColorRecords.clear();
 	}
 
-	@BeforeAll
-    static void setUp() {
-		kafkaContainer.start();
+	@AfterEach
+	void tearDownEach() {
+		log.info("General Teardown");
+		dummyContainer.stop();
 	}
 
 	ConsumerRecord<String, String> processRecord(ConsumerRecord<String, String> record){
 		log.info("Received message from topic: {}", record.topic());
-		log.info("---- Headers ----");
-		for (Header header : record.headers()) {
-			log.info("K: "+header.key() +" |V: "+ new String(header.value(), StandardCharsets.UTF_8));
-		}
 		log.info("---- Payload ----");
         try {
             Object jsonObject = objectMapper.readValue(record.value(), Object.class);
@@ -73,15 +76,24 @@ public abstract class KafkaTest {
 		return record;
 	}
 
-	@KafkaListener(topics = {"ball"}, groupId = "ball-test")
-	void listenerStock(ConsumerRecord<String, String> record){
-		ballRecords.add(processRecord(record));
-		ballListenerLatch.countDown();
+	ConsumerRecord<String, String> processStringRecord(ConsumerRecord<String, String> record){
+		log.info("Received message from topic: {}", record.topic());
+		log.info("---- Payload ----");
+		log.info(record.value());
+		log.info("-----------------");
+		return record;
 	}
 
-	@KafkaListener(topics = {"shipment"}, groupId = "shipment-test")
-	void listenerShipment(ConsumerRecord<String, String> record){
-		consumedShipmentRecords.add(processRecord(record));
-		shipmentListenerLatch.countDown();
+	@KafkaListener(topics = {"ball-color"}, groupId = "ball-color-test")
+	void ballColorListener(ConsumerRecord<String, String> record){
+		log.info("Processing Test record from topic: {}", record.topic());
+		ballColorRecords.add(processStringRecord(record));
+		ballColorListenerLatch.countDown();
+	}
+
+	@KafkaListener(topics = {"ball-json"}, groupId = "ball-json-test")
+	void ballJsonListener(ConsumerRecord<String, String> record){
+		ballJsonRecords.add(processRecord(record));
+		ballJsonListenerLatch.countDown();
 	}
 }
