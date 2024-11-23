@@ -25,7 +25,7 @@ public class StockServiceImpl implements StockService {
     private final ProductRepository productRepository;
     private final EventPublisher eventPublisher;
 
-    @Value("kafka.topic.stock")
+    @Value("${kafka.topic.stock}")
     private String stockTopic;
 
     @Autowired
@@ -37,6 +37,7 @@ public class StockServiceImpl implements StockService {
     public void registerNewProduct(UUID productId, int quantity) {
         Product product = new Product(productId, quantity);
         productRepository.save(product);
+        eventPublisher.publish(new AvailableStockAdjusted(StockDTO.fromProduct(product)), stockTopic);
     }
 
     /**

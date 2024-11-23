@@ -1,4 +1,4 @@
-package com.eda.ballpit.eventing;
+package com.eda.shippingService.eventing;
 
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;

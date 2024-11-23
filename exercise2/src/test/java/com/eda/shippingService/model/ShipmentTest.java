@@ -1,4 +1,4 @@
-package com.eda.ballpit.model;
+package com.eda.shippingService.model;
 
 import com.eda.shippingService.domain.entity.*;
 import org.junit.jupiter.api.Assertions;

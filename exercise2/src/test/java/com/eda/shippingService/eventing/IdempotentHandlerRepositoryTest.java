@@ -1,5 +1,6 @@
-package com.eda.ballpit.eventing;
+package com.eda.shippingService.eventing;
 
+import com.eda.shippingService.ShippingServiceApplication;
 import com.eda.shippingService.application.eventHandlers.OrderRequestedEventHandler;
 import com.eda.shippingService.domain.dto.incoming.OrderRequestedDTO;
 import com.eda.shippingService.domain.entity.ProcessedMessage;
@@ -9,12 +10,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ContextConfiguration(classes =  {ShippingServiceApplication.class})
 @DataJpaTest
 @Slf4j
 class IdempotentHandlerRepositoryTest {

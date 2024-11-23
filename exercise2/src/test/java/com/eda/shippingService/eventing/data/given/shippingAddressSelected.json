@@ -1,0 +1,10 @@
+{
+  "orderId": "00000000-0000-0000-0000-000000000123",
+  "shippingAddress": {
+    "street": "Lustige Straße 123",
+    "city": "Spaßhausen",
+    "state": "Freistaat Lachen",
+    "postalCode": "12345",
+    "country": "DE"
+  }
+}

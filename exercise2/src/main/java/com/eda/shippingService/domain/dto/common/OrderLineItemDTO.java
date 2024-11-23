@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.UUID;
 
@@ -13,7 +14,9 @@ import java.util.UUID;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public record OrderLineItemDTO(
         @JsonProperty("productId")
+        @Schema(example = "987e6543-e21b-34d5-c678-123456789012")
         UUID productId,
+        @Schema(example = "2")
         @JsonProperty("quantity")
         int quantity
 ) {

@@ -1,4 +1,4 @@
-package com.eda.ballpit.eventing;
+package com.eda.shippingService.eventing;
 
 import com.eda.shippingService.application.eventHandlers.OrderConfirmedEventHandler;
 import com.eda.shippingService.application.service.ShipmentService;
@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.eda.ballpit.TestHelpers.quickAddress;
-import static com.eda.ballpit.TestHelpers.quickUUID;
+import static com.eda.shippingService.TestHelpers.quickAddress;
+import static com.eda.shippingService.TestHelpers.quickUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = {OrderConfirmedEventHandler.class, ShipmentService.class})

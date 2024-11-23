@@ -1,6 +1,5 @@
-package com.eda.ballpit;
+package com.eda.shippingService;
 
-import com.eda.shippingService.ShippingServiceApplication;
 import org.springframework.boot.SpringApplication;
 
 public class TestShippingServiceApplication {

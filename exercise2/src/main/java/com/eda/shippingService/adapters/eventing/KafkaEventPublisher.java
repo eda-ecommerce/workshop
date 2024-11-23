@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
+@SuppressWarnings("rawtypes")
 public class KafkaEventPublisher implements EventPublisher {
     KafkaTemplate<String, String> kafkaTemplate;
     ObjectMapper objectMapper;
@@ -23,7 +24,7 @@ public class KafkaEventPublisher implements EventPublisher {
 
     @Override
     public void publish(Message message, String topic) {
-        ProducerRecord<String, String> record = null;
+        ProducerRecord<String, String> record;
         try {
             record = new ProducerRecord<>(topic, objectMapper
                     .writeValueAsString(message.getMessageValue())

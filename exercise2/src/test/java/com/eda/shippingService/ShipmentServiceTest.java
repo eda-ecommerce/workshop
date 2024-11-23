@@ -1,4 +1,4 @@
-package com.eda.ballpit;
+package com.eda.shippingService;
 
 import com.eda.shippingService.adapters.repo.ShipmentRepository;
 import com.eda.shippingService.application.service.ShipmentService;
@@ -20,8 +20,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.util.List;
 import java.util.UUID;
 
-import static com.eda.ballpit.TestHelpers.quickAddress;
-import static com.eda.ballpit.TestHelpers.quickUUID;
+import static com.eda.shippingService.TestHelpers.quickAddress;
+import static com.eda.shippingService.TestHelpers.quickUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = ShipmentService.class)

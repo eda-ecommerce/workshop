@@ -7,6 +7,6 @@ import java.util.UUID;
 
 public class OrderConfirmed extends DomainEvent<OrderConfirmedDTO> {
     public OrderConfirmed(UUID eventKey, UUID messageId, long timestamp, OrderConfirmedDTO payload) {
-        super(eventKey, messageId, timestamp, payload);
+        super(messageId, eventKey, timestamp, payload);
     }
 }

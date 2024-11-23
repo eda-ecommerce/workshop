@@ -3,10 +3,12 @@ package com.eda.shippingService.domain.entity;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSerialize
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@Schema(example = "CONFIRMED")
 public enum ShipmentStatus {
     INCOMPLETE, //We still need some data or the order is not yet confirmed
     CONFIRMED, //The order has been confirmed
