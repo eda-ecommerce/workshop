@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.eda.shippingService.TestHelpers.quickUUID;
@@ -38,7 +39,7 @@ public class KafkaOrderListenerTest extends KafkaTest {
         Mockito.doNothing().when(orderConfirmedEventHandler).handle(Mockito.any());
         Mockito.doNothing().when(orderRequestedEventHandler).handle(Mockito.any());
         ArgumentCaptor<OrderRequested> requestedCaptor = ArgumentCaptor.forClass(OrderRequested.class);
-        String orderRequestedPayload = FileUtils.readFileToString(new File("src/test/java/com/eda/shippingService/eventing/data/requested.json"), StandardCharsets.UTF_8);
+        String orderRequestedPayload = FileUtils.readFileToString(new File("src/test/java/com/eda/shippingService/eventing/data/orderRequested.json"), StandardCharsets.UTF_8);
         log.info("Payload: {}", orderRequestedPayload);
         var record = new ProducerRecord<String, String>("order", orderRequestedPayload);
         record.headers().add("operation", "requested".getBytes(StandardCharsets.UTF_8));
@@ -56,7 +57,7 @@ public class KafkaOrderListenerTest extends KafkaTest {
                         "20-12-24",
                         "InProcess",
                         List.of(
-                                new OrderRequestedDTO.Product(quickUUID(456), 10)
+                                new OrderRequestedDTO.Product(UUID.fromString("a9ae0bea-8b96-4569-82ef-1d7af95fcfab"), 10)
                         )
                 ));
         OrderRequested requestedEvent = requestedCaptor.getValue();
