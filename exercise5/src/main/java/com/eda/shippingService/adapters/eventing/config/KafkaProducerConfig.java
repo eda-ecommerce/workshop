@@ -1,4 +1,4 @@
-package com.eda.shippingService.adapters.eventing;
+package com.eda.shippingService.adapters.eventing.config;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
