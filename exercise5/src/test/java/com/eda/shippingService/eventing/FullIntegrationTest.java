@@ -23,6 +23,8 @@ import static com.eda.shippingService.TestHelpers.*;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.junit.jupiter.api.Assertions.*;
 
+//Suppresse because we know the optional will be present after first call
+@SuppressWarnings({"OptionalGetWithoutIsPresent"})
 public class FullIntegrationTest extends KafkaTest{
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;

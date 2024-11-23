@@ -7,9 +7,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ProductTest {
     private Product p1;
-
-    // TODO: make sure we dont need Kafka to run this test
-
     @BeforeEach
     void init(){
         p1 = new Product(
