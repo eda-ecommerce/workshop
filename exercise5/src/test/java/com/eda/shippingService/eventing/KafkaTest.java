@@ -38,8 +38,6 @@ public abstract class KafkaTest {
 	@Getter
 	private static final ArrayList<ConsumerRecord<String, String>> consumedProductRecords = new ArrayList<>();
 
-    @Qualifier("shipmentTopic")
-    @Autowired
     @Value("${kafka.topic.shipment}")
 	private String shipmentTopic;
 	@Value("${kafka.topic.stock}")
