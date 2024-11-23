@@ -1,62 +1,69 @@
 package com.eda.shippingService.eventing;
 
-import com.eda.shippingService.ShippingServiceApplication;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.kafka.KafkaContainer;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.kafka.test.utils.ContainerTestUtils;
+import org.springframework.test.annotation.DirtiesContext;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-import org.testcontainers.utility.DockerImageName;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Getter
-@Testcontainers
-@Slf4j(topic = "TestKafkaListener")
+@Slf4j
 @SpringBootTest
-@ContextConfiguration(classes = {ShippingServiceApplication.class})
+@EmbeddedKafka(topics = {"ball-color", "ball-json", "shipment"}, partitions = 1, kraft = true)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@SuppressWarnings({"LoggingSimilarMessage"})
 public abstract class KafkaTest {
-	@Container
-	static final KafkaContainer kafkaContainer = new KafkaContainer(
-        DockerImageName.parse("apache/kafka:3.8.1")
-	);
-
 	// For consuming
-	private ArrayList<ConsumerRecord<String, String>> consumedShipmentRecords = new ArrayList<>();
-	private ArrayList<ConsumerRecord<String, String>> consumedStockRecords = new ArrayList<>();
+	@Getter
+	private static final ArrayList<ConsumerRecord<String, String>> consumedShipmentRecords = new ArrayList<>();
+	@Getter
+	private static final ArrayList<ConsumerRecord<String, String>> consumedStockRecords = new ArrayList<>();
+	@Getter
+	private static final ArrayList<ConsumerRecord<String, String>> consumedProductRecords = new ArrayList<>();
+
 	public final static ResettableCountDownLatch stockListenerLatch = new ResettableCountDownLatch(1);
 	public final static ResettableCountDownLatch shipmentListenerLatch = new ResettableCountDownLatch(1);
+	public final static ResettableCountDownLatch productListenerLatch = new ResettableCountDownLatch(1);
 
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
-	@DynamicPropertySource
-	static void kafkaProperties(DynamicPropertyRegistry registry) {
-		registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
-	}
+	@Autowired
+	private ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory;
+
+	private static ConcurrentMessageListenerContainer<String, String> dummyContainer;
 
 	@BeforeEach
 	void setUpEach() {
+		log.info("General Reset");
+		dummyContainer = kafkaListenerContainerFactory.createContainer("stock", "shipment", "product");
+		dummyContainer.setupMessageListener(new DummyMessageListener());
+		dummyContainer.start();
+		ContainerTestUtils.waitForAssignment(dummyContainer, 3);
 		stockListenerLatch.reset();
 		shipmentListenerLatch.reset();
-		consumedShipmentRecords = new ArrayList<>();
-		consumedStockRecords = new ArrayList<>();
+		consumedShipmentRecords.clear();
+		consumedStockRecords.clear();
+		consumedProductRecords.clear();
 	}
 
-	@BeforeAll
-    static void setUp() {
-		kafkaContainer.start();
+	@AfterEach
+	void tearDownEach() {
+		log.info("General Teardown");
+		dummyContainer.stop();
 	}
 
 	ConsumerRecord<String, String> processRecord(ConsumerRecord<String, String> record){
@@ -86,5 +93,11 @@ public abstract class KafkaTest {
 	void listenerShipment(ConsumerRecord<String, String> record){
 		consumedShipmentRecords.add(processRecord(record));
 		shipmentListenerLatch.countDown();
+	}
+
+	@KafkaListener(topics = {"product"}, groupId = "test-product")
+	void listenerProduct(ConsumerRecord<String, String> record){
+		consumedProductRecords.add(processRecord(record));
+		productListenerLatch.countDown();
 	}
 }
