@@ -5,6 +5,7 @@ import com.eda.shippingService.domain.entity.Shipment;
 import com.eda.shippingService.domain.entity.ShipmentStatus;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,16 +13,26 @@ import java.util.UUID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSerialize
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@Schema(description = "Data Transfer Object for Shipment")
 public record ShipmentDTO(
         @JsonProperty("orderId")
+        @Schema(description = "Unique identifier for the order", example = "123e4567-e89b-12d3-a456-426614174000")
         UUID orderId,
+
         @JsonProperty("destination")
+        @Schema(description = "Destination address for the shipment", implementation = AddressDTO.class)
         AddressDTO destination,
+
         @JsonProperty("package")
+        @Schema(description = "Package details for the shipment", implementation = PackageDTO.class)
         PackageDTO aPackage,
+
         @JsonProperty("requestedProducts")
+        @Schema(description = "List of requested products in the shipment", implementation = OrderLineItemDTO.class)
         List<OrderLineItemDTO> requestedProducts,
+
         @JsonProperty("status")
+        @Schema(description = "Current status of the shipment", implementation =  ShipmentStatus.class)
         ShipmentStatus status
 ) {
     public Shipment toEntity(){
@@ -33,16 +44,16 @@ public record ShipmentDTO(
                         .toList(),
                 status
         );
-   }
+    }
 
-   public static ShipmentDTO fromEntity(Shipment shipment){
+    public static ShipmentDTO fromEntity(Shipment shipment){
         return new ShipmentDTO(
                 shipment.getOrderId(),
-                AddressDTO.fromEntity(shipment.getDestination()),
+                shipment.getDestination() != null ? AddressDTO.fromEntity(shipment.getDestination()): null,
                 shipment.getAPackage() != null ?PackageDTO.fromEntity(shipment.getAPackage()) : null,
                 shipment.getRequestedProducts().stream()
                         .map(OrderLineItemDTO::fromEntity).toList(),
                 shipment.getStatus()
         );
-   }
+    }
 }
