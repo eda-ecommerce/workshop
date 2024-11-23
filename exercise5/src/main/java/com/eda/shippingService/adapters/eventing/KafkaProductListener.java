@@ -23,7 +23,7 @@ public class KafkaProductListener {
         this.stockService = stockService;
     }
 
-    @KafkaListener(topics = "product")
+    @KafkaListener(topics = "${kafka.topic.product}")
     public void listenProduct(ConsumerRecord<String, String> record){
         //Process headers
         var headers = record.headers().toArray();
