@@ -50,6 +50,7 @@ public class KafkaCommandListener {
                                     messageId,
                                     record.timestamp(),
                                     objectMapper.readValue(record.value(), SelectShipmentAddressDTO.class)));
+                    break;
                 default:
                     throw new IllegalArgumentException("Unsupported operation: " + operation);
             }
