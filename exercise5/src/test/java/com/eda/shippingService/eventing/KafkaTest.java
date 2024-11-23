@@ -2,11 +2,14 @@ package com.eda.shippingService.eventing;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -35,6 +38,21 @@ public abstract class KafkaTest {
 	@Getter
 	private static final ArrayList<ConsumerRecord<String, String>> consumedProductRecords = new ArrayList<>();
 
+    @Qualifier("shipmentTopic")
+    @Autowired
+    @Value("${kafka.topic.shipment}")
+	private String shipmentTopic;
+	@Value("${kafka.topic.stock}")
+	private String stockTopic;
+	@Value("${kafka.topic.commands}")
+	private String commandTopic;
+	@Value("${kafka.topic.product}")
+	private String productTopic;
+	@Value("${kafka.topic.order}")
+	private String orderTopic;
+
+
+
 	public final static ResettableCountDownLatch stockListenerLatch = new ResettableCountDownLatch(1);
 	public final static ResettableCountDownLatch shipmentListenerLatch = new ResettableCountDownLatch(1);
 	public final static ResettableCountDownLatch productListenerLatch = new ResettableCountDownLatch(1);
@@ -45,14 +63,13 @@ public abstract class KafkaTest {
 	private ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory;
 
 	private static ConcurrentMessageListenerContainer<String, String> dummyContainer;
-
 	@BeforeEach
 	void setUpEach() {
 		log.info("General Reset");
-		dummyContainer = kafkaListenerContainerFactory.createContainer("stock", "shipment", "product");
+		dummyContainer = kafkaListenerContainerFactory.createContainer(stockTopic, shipmentTopic);
 		dummyContainer.setupMessageListener(new DummyMessageListener());
 		dummyContainer.start();
-		ContainerTestUtils.waitForAssignment(dummyContainer, 3);
+		ContainerTestUtils.waitForAssignment(dummyContainer, 2);
 		stockListenerLatch.reset();
 		shipmentListenerLatch.reset();
 		consumedShipmentRecords.clear();
@@ -89,7 +106,7 @@ public abstract class KafkaTest {
 		stockListenerLatch.countDown();
 	}
 
-	@KafkaListener(topics = {"shipment"}, groupId = "test-shipment")
+	@KafkaListener(topics = {"shipments"}, groupId = "test-shipment")
 	void listenerShipment(ConsumerRecord<String, String> record){
 		consumedShipmentRecords.add(processRecord(record));
 		shipmentListenerLatch.countDown();

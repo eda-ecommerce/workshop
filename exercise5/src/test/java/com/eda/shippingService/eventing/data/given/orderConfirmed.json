@@ -2,7 +2,7 @@
   "id": "00000000-0000-0000-0000-000000000123",
   "customerId": "00000000-0000-0000-0000-000000123456",
   "orderDate": "20-12-24",
-  "orderStatus": "Requested",
+  "orderStatus": "Confirmed",
   "totalPrice": 10,
   "items": [
     {
