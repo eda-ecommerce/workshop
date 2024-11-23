@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +15,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
+@Slf4j
 public class Shipment{
     //We use the orderId as the primary key, as it is unique and lets us match it to order way quicker
     @Getter
@@ -23,10 +26,10 @@ public class Shipment{
     private Address destination;
 
     //At the moment we assume one package per shipment, but this could easily be changed to a list of packages
-    @OneToOne(cascade = CascadeType.DETACH)
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST})
     private APackage aPackage;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<OrderLineItem> requestedProducts;
     private Boolean reserved = false;
 
@@ -39,7 +42,7 @@ public class Shipment{
         this.orderId = orderId;
         this.destination = destination;
         this.aPackage = aPackage;
-        this.requestedProducts = orderLineItems != null ?orderLineItems: List.of();
+        this.requestedProducts = orderLineItems != null ?orderLineItems: new ArrayList<>();
         this.status = status;
     }
 
@@ -95,7 +98,9 @@ public class Shipment{
     public void approve(){
         if (this.status == ShipmentStatus.INCOMPLETE && this.reserved && validateAddresses()){
             this.status = ShipmentStatus.CONFIRMED;
+            log.info("Shipment with id: {} has been confirmed", this.orderId);
         } else {
+            log.error("Shipment with id: {} could not be confirmed", this.orderId);
             throw new IllegalStateException("Shipment is in state: "+this.status+" and cannot be approved.");
         }
     }
