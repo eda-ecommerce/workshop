@@ -1,4 +1,4 @@
-package com.eda.shippingService;
+package com.eda.shippingService.application;
 
 import com.eda.shippingService.adapters.repo.ProductRepository;
 import com.eda.shippingService.application.service.StockService;
@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.eda.shippingService.TestHelpers.quickUUID;
+import static com.eda.shippingService.helper.TestHelpers.quickUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 

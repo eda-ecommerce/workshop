@@ -4,6 +4,7 @@ import com.eda.shippingService.application.eventHandlers.OrderConfirmedEventHand
 import com.eda.shippingService.application.eventHandlers.OrderRequestedEventHandler;
 import com.eda.shippingService.domain.dto.incoming.OrderRequestedDTO;
 import com.eda.shippingService.domain.events.OrderRequested;
+import com.eda.shippingService.helper.KafkaTest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -20,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.eda.shippingService.TestHelpers.quickUUID;
+import static com.eda.shippingService.helper.TestHelpers.quickUUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j

@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.eda.shippingService.TestHelpers.quickAddress;
-import static com.eda.shippingService.TestHelpers.quickUUID;
+import static com.eda.shippingService.helper.TestHelpers.quickAddress;
+import static com.eda.shippingService.helper.TestHelpers.quickUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = {OrderConfirmedEventHandler.class, ShipmentService.class})

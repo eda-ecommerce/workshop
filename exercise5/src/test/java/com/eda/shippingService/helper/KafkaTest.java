@@ -1,4 +1,4 @@
-package com.eda.shippingService.eventing;
+package com.eda.shippingService.helper;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public abstract class KafkaTest {
 	@Getter
 	private static final ArrayList<ConsumerRecord<String, String>> consumedProductRecords = new ArrayList<>();
 
-    @Value("${kafka.topic.shipment}")
+	@Value("${kafka.topic.shipment}")
 	private String shipmentTopic;
 	@Value("${kafka.topic.stock}")
 	private String stockTopic;
@@ -47,8 +47,6 @@ public abstract class KafkaTest {
 	@Value("${kafka.topic.order}")
 	private String orderTopic;
 
-
-
 	public final static ResettableCountDownLatch stockListenerLatch = new ResettableCountDownLatch(1);
 	public final static ResettableCountDownLatch shipmentListenerLatch = new ResettableCountDownLatch(1);
 	public final static ResettableCountDownLatch productListenerLatch = new ResettableCountDownLatch(1);
@@ -57,15 +55,17 @@ public abstract class KafkaTest {
 
 	@Autowired
 	private ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory;
-
 	private static ConcurrentMessageListenerContainer<String, String> dummyContainer;
+
 	@BeforeEach
 	void setUpEach() {
 		log.info("General Reset");
-		dummyContainer = kafkaListenerContainerFactory.createContainer(stockTopic, shipmentTopic);
+		kafkaListenerContainerFactory.getContainerProperties().setGroupId("KafkaTestDummy");
+		dummyContainer = kafkaListenerContainerFactory.createContainer(stockTopic, shipmentTopic, orderTopic, productTopic);
 		dummyContainer.setupMessageListener(new DummyMessageListener());
+		dummyContainer.setTopicCheckTimeout(10);
 		dummyContainer.start();
-		ContainerTestUtils.waitForAssignment(dummyContainer, 2);
+		ContainerTestUtils.waitForAssignment(dummyContainer, 4);
 		stockListenerLatch.reset();
 		shipmentListenerLatch.reset();
 		consumedShipmentRecords.clear();
@@ -74,7 +74,7 @@ public abstract class KafkaTest {
 	}
 
 	@AfterEach
-	void tearDownEach() {
+	public void tearDownEach() {
 		log.info("General Teardown");
 		dummyContainer.stop();
 	}
@@ -86,13 +86,13 @@ public abstract class KafkaTest {
 			log.info("K: "+header.key() +" |V: "+ new String(header.value(), StandardCharsets.UTF_8));
 		}
 		log.info("---- Payload ----");
-        try {
-            Object jsonObject = objectMapper.readValue(record.value(), Object.class);
+		try {
+			Object jsonObject = objectMapper.readValue(record.value(), Object.class);
 			log.info(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        log.info("-----------------");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		log.info("-----------------");
 		return record;
 	}
 

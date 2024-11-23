@@ -1,4 +1,4 @@
-package com.eda.shippingService.eventing;
+package com.eda.shippingService.helper;
 
 import lombok.NoArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;

@@ -1,4 +1,4 @@
-package com.eda.shippingService;
+package com.eda.shippingService.helper;
 
 import com.eda.shippingService.domain.dto.common.AddressDTO;
 import com.eda.shippingService.domain.dto.common.OrderLineItemDTO;

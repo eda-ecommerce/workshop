@@ -1,4 +1,4 @@
-package com.eda.shippingService;
+package com.eda.shippingService.helper;
 
 import com.eda.shippingService.domain.dto.common.AddressDTO;
 import com.eda.shippingService.domain.dto.common.OrderLineItemDTO;
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.UUID;
 
-import static com.eda.shippingService.TestHelpers.quickUUID;
+import static com.eda.shippingService.helper.TestHelpers.quickUUID;
 
 public class TestHelperTests {
 

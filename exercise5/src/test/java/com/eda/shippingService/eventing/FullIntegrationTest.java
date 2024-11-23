@@ -6,6 +6,7 @@ import com.eda.shippingService.domain.entity.Address;
 import com.eda.shippingService.domain.entity.OrderLineItem;
 import com.eda.shippingService.domain.entity.Shipment;
 import com.eda.shippingService.domain.entity.ShipmentStatus;
+import com.eda.shippingService.helper.KafkaTest;
 import jakarta.transaction.Transactional;
 import org.apache.commons.io.FileUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -19,13 +20,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.eda.shippingService.TestHelpers.*;
+import static com.eda.shippingService.helper.TestHelpers.*;
 import static org.awaitility.Awaitility.waitAtMost;
 import static org.junit.jupiter.api.Assertions.*;
 
 //Suppresse because we know the optional will be present after first call
 @SuppressWarnings({"OptionalGetWithoutIsPresent"})
-public class FullIntegrationTest extends KafkaTest{
+public class FullIntegrationTest extends KafkaTest {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
     @Autowired
