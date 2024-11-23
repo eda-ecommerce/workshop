@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import lombok.*;
 import org.springframework.lang.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +23,7 @@ public class APackage extends AbstractEntity{
     @Setter
     private Float weight;
     @ElementCollection
-    private List<OrderLineItem> contents = List.of();
+    private List<OrderLineItem> contents = new ArrayList<>();
 
     public APackage(Float height, Float width, Float depth, Float weight, List<OrderLineItem> contents){
         this.weight = weight;

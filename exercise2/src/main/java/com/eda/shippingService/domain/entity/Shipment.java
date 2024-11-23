@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -39,7 +40,7 @@ public class Shipment{
         this.orderId = orderId;
         this.destination = destination;
         this.aPackage = aPackage;
-        this.requestedProducts = orderLineItems != null ?orderLineItems: List.of();
+        this.requestedProducts = orderLineItems != null ?orderLineItems: new ArrayList<>();
         this.status = status;
     }
 

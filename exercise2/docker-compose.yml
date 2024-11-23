@@ -129,7 +129,7 @@ services:
     entrypoint: [ "/bin/sh", "-c", "chown 185:185 /deployments/databases && exit 0" ]
     init: true
   order-service:
-    image: ghcr.io/eda-ecommerce/order-service:1.1.0
+    image: ghcr.io/eda-ecommerce/order-service:1.1.5
     container_name: order-service
     restart: always
     depends_on:
