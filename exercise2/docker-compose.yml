@@ -4,7 +4,7 @@ volumes:
   order-service-data:
   shopping-basket-service-data:
   customer-service-data:
-
+# TODO: Make sure this compose file runs on your machine (ask us for help)
 services:
   # Kafka
   zookeeper:
