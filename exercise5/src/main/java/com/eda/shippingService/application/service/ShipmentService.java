@@ -1,6 +1,7 @@
 package com.eda.shippingService.application.service;
 
 import com.eda.shippingService.adapters.eventing.EventPublisher;
+import com.eda.shippingService.adapters.repo.PackageRepository;
 import com.eda.shippingService.application.service.exception.IncompleteContentException;
 import com.eda.shippingService.application.service.exception.NotEnoughStockException;
 import com.eda.shippingService.domain.dto.incoming.IncomingPackageDTO;
@@ -17,14 +18,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 @Service
 public class ShipmentService {
     private final ShipmentRepository shipmentRepository;
     private final EventPublisher eventPublisher;
     private final StockService stockService;
-    @Value("kafka.topic.shipping")
+    @Value("${kafka.topic.shipment}")
     private String shipmentTopic;
 
     @Autowired
@@ -107,7 +110,7 @@ public class ShipmentService {
             case SHIPPED, IN_DELIVERY -> {
             }
             case DELIVERED -> {
-                found.delivered();
+
                 eventPublisher.publish(new ShipmentDelivered(dto.orderId(), ShipmentDTO.fromEntity(found)), shipmentTopic);
             }
             case FAILED -> eventPublisher.publish(new InterventionNeeded(ShipmentDTO.fromEntity(found)), shipmentTopic);
@@ -116,5 +119,11 @@ public class ShipmentService {
         }
         shipmentRepository.save(found);
         return ShipmentDTO.fromEntity(found);
+    }
+
+    public List<ShipmentDTO> findAllShipments() {
+        return StreamSupport.stream(shipmentRepository.findAll().spliterator(), false)
+                .map(ShipmentDTO::fromEntity)
+                .toList();
     }
 }
