@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Exercise2" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="exercise2" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.eda.shippingService.ShippingServiceApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
