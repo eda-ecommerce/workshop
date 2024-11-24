@@ -14,8 +14,7 @@ public class KafkaOrderListener {
 
     private final Logger log = LoggerFactory.getLogger(KafkaOrderListener.class);
 
-    @KafkaListener(topics = "${kafka.topic.order}")
-    public void listenToOrderTopic(ConsumerRecord<String, String> consumerRecord) {
+    public void listenToOrderTopic() {
         //TODO: Set the topic to listen to
         //TODO: Choose a suitable parameter type for the method (Which type of ConsumerRecord?)
         //TODO: Log the actual json value of the consumer record (log.info)
