@@ -31,15 +31,12 @@ public class BallColorListener {
     }
 
     @KafkaListener(topics = {"ball-color"}, groupId = "ball-color")
-    public void listenColor(ConsumerRecord<String, String> record){
-        log.info("Got ball color: {}", record.value());
-        if (record.value().equals("red")) {
-            log.info("Saving ball with color: {}", record.value());
-            ballService.saveBall(record.value());
-        }
+    //TODO listen to a String from the ball-color topic
+    public void listenColor(){
+        //TODO: Log the ball color
+        //TODO: If the color is red, use the ballService to save a red Ball
         //For testing purposes,
         testLatch.countDown();
-        ballColorRecords.add(record);
     }
 
     public void reset(){

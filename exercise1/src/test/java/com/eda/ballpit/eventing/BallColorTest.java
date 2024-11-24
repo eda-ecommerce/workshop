@@ -14,7 +14,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
-import static org.awaitility.Awaitility.waitAtMost;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest

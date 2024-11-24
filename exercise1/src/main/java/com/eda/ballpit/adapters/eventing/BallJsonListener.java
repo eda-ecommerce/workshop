@@ -33,18 +33,16 @@ public class BallJsonListener {
     }
 
     @KafkaListener(topics = "ball-json", groupId = "ball-json")
-    public void listenJson(ConsumerRecord<String, String> record){
+    //TODO listen to a ConsumerRecord from the topic
+    public void listenJson(){
         var objectMapper = new ObjectMapper();
-        log.info("Trying to json parse: {}", record.value());
         try {
-            Ball ball = objectMapper.readValue(record.value(), Ball.class);
-            log.info("Ball object: {}", ball.toString());
-            if(Objects.equals(ball.getColor(), "red")) ballService.saveBall(ball);
+            //TODO Use objectMapper to create a Ball object from the json string
+            //TODO If the ball color is red, call the ballService to save a red ball directly from your new object
         } catch (JsonProcessingException e) {
             log.error("Error processing ball", e);
         }
         //Easiest way to test this sadly
-        ballJsonRecords.add(record);
         testLatch.countDown();
     }
 
