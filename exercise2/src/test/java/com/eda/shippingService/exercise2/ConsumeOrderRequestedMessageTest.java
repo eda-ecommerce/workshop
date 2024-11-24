@@ -2,24 +2,16 @@ package com.eda.shippingService.exercise2;
 
 import com.eda.shippingService.LogCapture;
 import com.eda.shippingService.LogCaptureExtension;
-import com.eda.shippingService.adapters.eventing.KafkaOrderListener;
-import com.eda.shippingService.eventing.DummyMessageListener;
 import com.eda.shippingService.eventing.KafkaTest;
 import org.apache.commons.io.FileUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import ch.qos.logback.classic.Level;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
-import org.springframework.kafka.test.utils.ContainerTestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,7 +51,8 @@ public class ConsumeOrderRequestedMessageTest extends KafkaTest {
     }
 
     @Test
-    void bonusPrintAllHeaders(LogCapture logCapture) {
+    void bonusPrintAllHeaders(LogCapture logCapture) throws InterruptedException {
+        Thread.sleep(5000);
         logCapture.setLogFilter(Level.INFO);
         var record = new ProducerRecord<String, String>("order", orderRequestedPayload);
         record.headers().add("operation", "requested".getBytes(StandardCharsets.UTF_8));

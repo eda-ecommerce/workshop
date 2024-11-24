@@ -1,1 +1,25 @@
-{"id": "00000000-0000-0000-0000-000000000123", "customerId": "00000000-0000-0000-0000-000000123456", "orderDate": "20-12-24", "orderStatus": "Requested", "totalPrice": 10, "items": [{"shoppingBasketItemId": "7d936cc0-9a57-4f4e-a4e5-ffa3c6855ee7", "shoppingBasketId": "ecdad7b6-4e15-4d6c-9e84-8b133b6b7668", "offeringId": "539ace7f-4593-4a19-ba60-d31118c061f5", "quantity": 10, "totalPrice": 10, "itemState": "AVAILABLE"}], "products": [{"productId": "00000000-0000-0000-0000-000001234567", "quantity": 10}]}
+{
+  "id": "00000000-0000-0000-0000-000000000123",
+  "shoppingBasketId": "aa921eed-294c-40b8-8f43-9638aa557062",
+  "customerId": "eccb11cc-8b8e-4636-a7ce-c23c97bc6c87",
+  "orderDate": "Sun Nov 24 12:49:12 GMT 2024",
+  "orderStatus": "requested",
+  "totalPrice": 6.91263,
+  "totalItemQuantity": 1,
+  "items": [
+    {
+      "shoppingBasketItemId": "b56178cb-6644-459e-8c3a-32d536906f53",
+      "shoppingBasketId": "aa921eed-294c-40b8-8f43-9638aa557062",
+      "offeringId": "892c3f2c-ae37-4a3c-a321-bf7fd4aeff4c",
+      "quantity": 1,
+      "totalPrice": 6.91263,
+      "itemState": "AVAILABLE"
+    }
+  ],
+  "products": [
+    {
+      "productId": "7b2b1788-9cbf-4b28-8e8e-c9e84190c1bd",
+      "quantity": 93
+    }
+  ]
+}
