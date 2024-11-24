@@ -1,7 +1,6 @@
 package com.eda.shippingService.application.service;
 
 import com.eda.shippingService.adapters.eventing.EventPublisher;
-import com.eda.shippingService.adapters.repo.PackageRepository;
 import com.eda.shippingService.application.service.exception.IncompleteContentException;
 import com.eda.shippingService.application.service.exception.NotEnoughStockException;
 import com.eda.shippingService.domain.dto.incoming.IncomingPackageDTO;
@@ -37,11 +36,38 @@ public class ShipmentService {
         this.stockService = stockService;
     }
 
+    public ShipmentDTO provideRequestedContents(UUID orderId, ShipmentContentsDTO shipmentDTO) {
+        Shipment shipmentEntity = shipmentRepository.findById(orderId).orElse(shipmentDTO.toEntity(orderId));
+        //Could be handled differently if we catch each reserve stock call and set status to partially complete or something / send out a smaller package
+        try {
+            for (OrderLineItem item : shipmentEntity.getRequestedProducts()) {
+                //Try reserving stock for each item
+                stockService.reserveStock(item.productId(), item.quantity());
+            }
+            //If all stock is reserved, mark the shipment as reserved
+            shipmentEntity.reserve();
+            //TODO Create a new ShipmentRequested event
+            //TODO Call the eventPublisher with that event
+            //TODO Proceed in the KafkaEventPublisher (the implementation of the EventPublisher interface)
+            //This saves the changed shipment to the repository
+            shipmentRepository.save(shipmentEntity);
+            //This is only for other callers
+            return ShipmentDTO.fromEntity(shipmentEntity);
+        } catch (NotEnoughStockException e) {
+            //TODO Bonus: Decide what to do if not enough stock (Event, Exception, ...)
+            //Still save the shipment?
+            shipmentRepository.save(shipmentEntity);
+            return ShipmentDTO.fromEntity(shipmentEntity);
+        }
+    }
+
     //it would be so easy to confuse destination and origin, should there be separate data types?
     public ShipmentDTO provideShippingAddress(UUID orderId, AddressDTO destination) {
         var found = shipmentRepository.findById(orderId).orElse(
                 new Shipment(orderId, destination.toEntity(), null, null, ShipmentStatus.INCOMPLETE)
         );
+        //Probably should publish an event?
+        eventPublisher.publish(new ShipmentAddressProvided(ShipmentDTO.fromEntity(found)), shipmentTopic);
         found.setDestination(destination.toEntity());
         shipmentRepository.save(found);
         return ShipmentDTO.fromEntity(found);
@@ -51,25 +77,6 @@ public class ShipmentService {
         var found = shipmentRepository.findById(orderId).orElseThrow(() -> new IllegalStateException("Order with id " + orderId + " does not exist"));
         found.approve();
         shipmentRepository.save(found);
-    }
-
-    public ShipmentDTO provideRequestedContents(UUID orderId, ShipmentContentsDTO shipmentDTO) {
-        Shipment shipmentEntity = shipmentRepository.findById(orderId).orElse(shipmentDTO.toEntity(orderId));
-        //Could be handled differently if we catch each reserve stock call and set status to partially complete or something / send out a smaller package
-        try {
-            for (var item : shipmentEntity.getRequestedProducts()) {
-                stockService.reserveStock(item.productId(), item.quantity());
-            }
-            shipmentEntity.reserve();
-            eventPublisher.publish(new ShipmentRequested(ShipmentDTO.fromEntity(shipmentEntity)), shipmentTopic);
-            shipmentRepository.save(shipmentEntity);
-            return ShipmentDTO.fromEntity(shipmentEntity);
-        } catch (NotEnoughStockException e) {
-            shipmentEntity.setStatus(ShipmentStatus.ON_HOLD);
-            eventPublisher.publish(new InterventionNeeded(ShipmentDTO.fromEntity(shipmentEntity)), shipmentTopic);
-            shipmentRepository.save(shipmentEntity);
-            return ShipmentDTO.fromEntity(shipmentEntity);
-        }
     }
 
     //This assumes that we call this with a complete package, maybe by an external working system. Idk if thats too much assumption

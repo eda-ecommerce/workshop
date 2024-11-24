@@ -50,11 +50,12 @@ public class StockServiceImpl implements StockService {
         if (quantity<=0) return;
         var product = productRepository.findById(productID).orElseThrow(() -> new NoSuchElementException("No product exists with id: "+productID));
             try {
-                product.reserveStock(quantity);
-                eventPublisher.publish(new AvailableStockAdjusted(StockDTO.fromProduct(product)), stockTopic);
+                //TODO reserve stock on product
+                //TODO publish AvailableStockAdjusted event
                 productRepository.save(product);
                 if (product.isCritical()) publishStockCritical(product);
             } catch (NotEnoughStockException e){
+                //We still need to notify someone, even though this should not happen
                 eventPublisher.publish(new OutOfStock(product), stockTopic);
                 log.error("Not enough stock of product {} to fulfill request for {} units. Current available stock: {}", productID, quantity, product.getAvailableStock());
                 throw e;

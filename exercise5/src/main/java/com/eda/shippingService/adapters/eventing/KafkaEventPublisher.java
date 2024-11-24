@@ -28,28 +28,14 @@ public class KafkaEventPublisher implements EventPublisher {
     public void publish(Message message, String topic) {
         ProducerRecord<String, String> record;
         try {
-            record = new ProducerRecord<>(topic, objectMapper
-                    .writeValueAsString(message.getMessageValue())
-            );
-            record.headers().add("messageId", message.getMessageId()
-                    .toString()
-                    .getBytes());
-            //To be removed
-            record.headers().add("operation", message.getClass().getSimpleName()
-                    .getBytes());
+            //TODO Use objectMapper to create a json string from the payload
+            //TODO Create new ProducerRecord
+            //TODO Add the message id as a header
+            //TODO Add the operation as a header
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
         log.info("Publishing record {} to topic {}", record, topic);
-        kafkaTemplate.send(record);
-    }
-
-    @Override
-    public void publish(String message, String operation, String topic) {
-        ProducerRecord<String, String> record = new ProducerRecord<>(topic, message);
-        record.headers().add("messageId", UUID.randomUUID().toString().getBytes());
-        record.headers().add("operation", operation.getBytes());
-        log.info("Publishing record {} to topic {}", record, topic);
-        kafkaTemplate.send(record);
+        //TODO Send the record with the kafkaTemplate
     }
 }

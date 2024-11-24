@@ -1,6 +1,8 @@
 package com.eda.shippingService.adapters.eventing;
 
 import com.eda.shippingService.application.eventHandlers.EventHandler;
+import com.eda.shippingService.application.service.IdempotentcyService;
+import com.eda.shippingService.application.service.ShipmentService;
 import com.eda.shippingService.domain.dto.incoming.OrderConfirmedDTO;
 import com.eda.shippingService.domain.dto.incoming.OrderRequestedDTO;
 import com.eda.shippingService.domain.events.OrderConfirmed;
@@ -20,21 +22,20 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
+@SuppressWarnings("DuplicatedCode")
 @Component
 @Slf4j
 public class KafkaOrderListener {
 
-    @Setter
-    private EventHandler<OrderRequested> orderRequestedEventHandler;
-    @Setter
-    private EventHandler<OrderConfirmed> orderConfimedEventEventHandler;
+    private final ShipmentService shipmentService;
+    private final IdempotentcyService idempotentcyService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
-    public KafkaOrderListener(EventHandler<OrderRequested> orderRequestedEventHandler, EventHandler<OrderConfirmed> orderConfimedEventEventHandler) {
-        this.orderRequestedEventHandler = orderRequestedEventHandler;
-        this.orderConfimedEventEventHandler = orderConfimedEventEventHandler;
+    public KafkaOrderListener( ShipmentService shipmentService, IdempotentcyService idempotentcyService) {
+        this.shipmentService = shipmentService;
+        this.idempotentcyService = idempotentcyService;
     }
 
     //This should probably more fine-grained
@@ -55,17 +56,19 @@ public class KafkaOrderListener {
         try {
             switch (operation) {
                 case "requested":
-                    orderRequestedEventHandler.handle(
-                            new OrderRequested(null, messageId,record.timestamp(), objectMapper.readValue(record.value(), OrderRequestedDTO.class)));
+                    //TODO: Handle the OrderRequested event
+                    //TODO: Convert the json value to an OrderRequestedDTO object
+                    //TODO: Call the shipmentService with the DTO and continue there
                     break;
                 case "confirmed":
-                    orderConfimedEventEventHandler.handle(
-                            new OrderConfirmed(null, messageId, record.timestamp(), objectMapper.readValue(record.value(), OrderConfirmedDTO.class)));
+                    //TODO: Bonus task - Implement the OrderConfirmed event
+                    //TODO: Convert the json value to an OrderConfirmedDTO object
+                    //TODO: Call the shipmentService with the DTO and continue there
                     break;
                 default:
                     log.error("Unsupported operation: {}", operation);
             }
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             log.error("Error processing message with id: {} value: {}", messageId, record.value());
             log.error(e.getMessage());
         }
