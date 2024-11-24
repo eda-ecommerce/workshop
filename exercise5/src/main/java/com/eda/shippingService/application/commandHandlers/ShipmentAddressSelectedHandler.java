@@ -1,5 +1,6 @@
 package com.eda.shippingService.application.commandHandlers;
 
+import com.eda.shippingService.application.service.IdempotentcyService;
 import com.eda.shippingService.application.service.ShipmentService;
 import com.eda.shippingService.domain.commands.ShipmentAddressSelected;
 import com.eda.shippingService.domain.entity.ProcessedMessage;
@@ -10,20 +11,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class ShipmentAddressSelectedHandler implements CommandHandler<ShipmentAddressSelected> {
     private final ShipmentService shipmentService;
-    private final IdempotentHandlerRepository idempotentHandlerRepository;
+    private final IdempotentcyService idempotentcyService;
 
     @Autowired
-    public ShipmentAddressSelectedHandler(ShipmentService shipmentService, IdempotentHandlerRepository idempotentHandlerRepository) {
+    public ShipmentAddressSelectedHandler(ShipmentService shipmentService, IdempotentcyService idempotentcyService) {
         this.shipmentService = shipmentService;
-        this.idempotentHandlerRepository = idempotentHandlerRepository;
+        this.idempotentcyService = idempotentcyService;
     }
 
     @Override
     public void handle(ShipmentAddressSelected command) {
-        if (idempotentHandlerRepository.findByMessageIdAndHandlerName(command.getMessageId(),this.getClass().getSimpleName()).isPresent()){
+        if (idempotentcyService.hasBeenProcessed(command)) {
             return;
         }
         shipmentService.provideShippingAddress(command.getMessageValue().orderId(), command.getMessageValue().shippingAddress());
-        idempotentHandlerRepository.save(new ProcessedMessage(command.getMessageId(), this.getClass().getSimpleName()));
+        idempotentcyService.saveProcessedMessage(command);
     }
 }
