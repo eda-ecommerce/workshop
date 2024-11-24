@@ -9,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 @Slf4j
-@SuppressWarnings("rawtypes")
+@SuppressWarnings({"rawtypes", "LoggingSimilarMessage"})
 public class KafkaEventPublisher implements EventPublisher {
     KafkaTemplate<String, String> kafkaTemplate;
     ObjectMapper objectMapper;
@@ -38,6 +40,15 @@ public class KafkaEventPublisher implements EventPublisher {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+        log.info("Publishing record {} to topic {}", record, topic);
+        kafkaTemplate.send(record);
+    }
+
+    @Override
+    public void publish(String message, String operation, String topic) {
+        ProducerRecord<String, String> record = new ProducerRecord<>(topic, message);
+        record.headers().add("messageId", UUID.randomUUID().toString().getBytes());
+        record.headers().add("operation", operation.getBytes());
         log.info("Publishing record {} to topic {}", record, topic);
         kafkaTemplate.send(record);
     }
