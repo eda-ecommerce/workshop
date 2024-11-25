@@ -19,12 +19,6 @@ import java.util.concurrent.CountDownLatch;
 @Component
 @Slf4j
 public class BallJsonListener {
-
-    @Getter
-    private CountDownLatch testLatch = new CountDownLatch(1);
-    @Getter
-    private final ArrayList<ConsumerRecord<String, String>> ballJsonRecords = new ArrayList<>();
-
     private final BallService ballService;
 
     @Autowired
@@ -39,15 +33,10 @@ public class BallJsonListener {
         try {
             //TODO Use objectMapper to create a Ball object from the json string
             //TODO If the ball color is red, call the ballService to save a red ball directly from your new object
-        } catch (JsonProcessingException e) {
+        } //TODO Catch the JsonProcessingException thrown by the objectMapper
+        catch (JsonProcessingException e) {
             log.error("Error processing ball", e);
         }
         //Easiest way to test this sadly
-        testLatch.countDown();
-    }
-
-    public void reset(){
-        ballJsonRecords.clear();
-        testLatch = new CountDownLatch(1);
     }
 }

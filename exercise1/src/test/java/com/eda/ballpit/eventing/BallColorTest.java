@@ -14,6 +14,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
+import static org.awaitility.Awaitility.waitAtMost;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -23,7 +24,6 @@ public class BallColorTest extends KafkaTest {
     private final BallService ballService;
     private final KafkaTemplate<String, String> stringTemplate;
     private final BallRepository ballRepository;
-    private final BallColorListener ballColorListener;
 
     @Override
     @BeforeEach
@@ -31,15 +31,13 @@ public class BallColorTest extends KafkaTest {
         super.setUpEach();
         log.warn("Resetting");
         ballRepository.deleteAll();
-        ballColorListener.reset();
     }
 
     @Autowired
-    public BallColorTest(BallService ballService, KafkaTemplate<String, String> stringTemplate, BallRepository ballRepository, BallColorListener ballColorListener) {
+    public BallColorTest(BallService ballService, KafkaTemplate<String, String> stringTemplate, BallRepository ballRepository) {
         this.ballService = ballService;
         this.stringTemplate = stringTemplate;
         this.ballRepository = ballRepository;
-        this.ballColorListener = ballColorListener;
     }
 
     @Test
@@ -51,18 +49,21 @@ public class BallColorTest extends KafkaTest {
     }
 
     @Test
-    void shouldSaveRedBall() throws InterruptedException {
+    void shouldSaveRedBall() {
         stringTemplate.send("ball-color", "red");
-        assertTrue(ballColorListener.getTestLatch().await(5, TimeUnit.SECONDS));
-        var list = StreamSupport.stream(ballRepository.findAll().spliterator(), false).toList();
-        assertEquals(1, list.size());
-        assertEquals("red", list.get(0).getColor());
+        waitAtMost(5, TimeUnit.SECONDS).untilAsserted(
+                () -> {
+                    var list = StreamSupport.stream(ballRepository.findAll().spliterator(), false).toList();
+                    assertEquals(1, list.size(), "There should only be one entry in the database");
+                    assertEquals("red", list.get(0).getColor(), "The only color of the ball should be red");
+                }
+        );
     }
 
     @Test
     void shouldNotSavePinkBall() throws InterruptedException {
         stringTemplate.send("ball-color", "pink");
-        ballColorListenerLatch.await(3, TimeUnit.SECONDS);
+        Thread.sleep(5000);
         var list = StreamSupport.stream(ballRepository.findAll().spliterator(), false).toList();
         assertEquals(0, list.size());
     }
