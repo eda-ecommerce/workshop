@@ -18,11 +18,6 @@ import java.util.concurrent.CountDownLatch;
 @Component
 @Slf4j
 public class BallColorListener {
-    @Getter
-    private CountDownLatch testLatch = new CountDownLatch(1);
-    @Getter
-    private final ArrayList<ConsumerRecord<String, String>> ballColorRecords = new ArrayList<>();
-
     private final BallService ballService;
 
     @Autowired
@@ -35,12 +30,5 @@ public class BallColorListener {
     public void listenColor(){
         //TODO: Log the ball color
         //TODO: If the color is red, use the ballService to save a red Ball
-        //For testing purposes,
-        testLatch.countDown();
-    }
-
-    public void reset(){
-        ballColorRecords.clear();
-        testLatch = new CountDownLatch(1);
     }
 }

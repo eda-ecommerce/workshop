@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
+import static org.awaitility.Awaitility.waitAtMost;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -28,15 +29,13 @@ public class BallJsonTest extends KafkaTest {
     private final KafkaTemplate<String, String> stringTemplate;
     private final BallRepository ballRepository;
     private final ObjectMapper objectMapper;
-    private final BallJsonListener ballJsonListener;
 
     @Autowired
-    public BallJsonTest(BallService ballService, KafkaTemplate<String, String> stringTemplate, BallRepository ballRepository, BallJsonListener ballJsonListener) {
+    public BallJsonTest(BallService ballService, KafkaTemplate<String, String> stringTemplate, BallRepository ballRepository) {
         this.ballService = ballService;
         this.stringTemplate = stringTemplate;
         this.ballRepository = ballRepository;
         this.objectMapper = new ObjectMapper();
-        this.ballJsonListener = ballJsonListener;
     }
 
     @Override
@@ -44,7 +43,6 @@ public class BallJsonTest extends KafkaTest {
     void setUpEach(){
         super.setUpEach();
         ballRepository.deleteAll();
-        ballJsonListener.reset();
     }
 
     @Test
@@ -57,18 +55,20 @@ public class BallJsonTest extends KafkaTest {
     }
 
     @Test
-    void shouldSaveRedBall() throws InterruptedException {
+    void shouldSaveRedBall() {
         stringTemplate.send("ball-json", """
                                 {
                                 "id": "00000000-0000-0000-0000-000000000123",
                                 "color": "red"
                                 }
                 """);
-        assertTrue(ballJsonListener.getTestLatch().await(3, TimeUnit.SECONDS));
-        assertEquals(1,ballJsonListener.getBallJsonRecords().size());
-        var list = StreamSupport.stream(ballRepository.findAll().spliterator(), false).toList();
-        assertEquals(1, list.size());
-        assertEquals("red", list.get(0).getColor());
+        waitAtMost(5, TimeUnit.SECONDS).untilAsserted(
+                () -> {
+                    var list = StreamSupport.stream(ballRepository.findAll().spliterator(), false).toList();
+                    assertEquals(1, list.size(), "There should only be one entry in the database");
+                    assertEquals("red", list.get(0).getColor(), "The only color of the ball should be red");
+                }
+        );
     }
 
     @Test
@@ -79,7 +79,7 @@ public class BallJsonTest extends KafkaTest {
                                 "color": "pink"
                                 }
                 """);
-        assertTrue(ballJsonListener.getTestLatch().await(3, TimeUnit.SECONDS));
+        Thread.sleep(5000);
         var list = StreamSupport.stream(ballRepository.findAll().spliterator(), false).toList();
         assertEquals(0, list.size());
     }
