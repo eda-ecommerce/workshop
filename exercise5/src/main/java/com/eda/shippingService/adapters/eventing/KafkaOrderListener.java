@@ -57,13 +57,16 @@ public class KafkaOrderListener {
             switch (operation) {
                 case "requested":
                     //TODO: Handle the OrderRequested event
-                    //TODO: Convert the json value to an OrderRequestedDTO object
-                    //TODO: Call the shipmentService with the DTO and continue there
+                    // Make the data accessible:
+                    //  Convert the json string to an OrderRequestedDTO object & Extract the necessary data into a new ShipmentContentsDTO
+                    //  Or: Create a new Method in the ShipmentService that can handle the OrderRequestedDTO directly
+                    // Call the shipmentService with the DTO and continue there
+                    //TODO Bonus: make the listener idempotent by using the idempotentcyService
                     break;
                 case "confirmed":
                     //TODO: Bonus task - Implement the OrderConfirmed event
-                    //TODO: Convert the json value to an OrderConfirmedDTO object
-                    //TODO: Call the shipmentService with the DTO and continue there
+                    // Convert the json value to an OrderConfirmedDTO object
+                    // Call the shipmentService with the required parameters
                     break;
                 default:
                     log.error("Unsupported operation: {}", operation);

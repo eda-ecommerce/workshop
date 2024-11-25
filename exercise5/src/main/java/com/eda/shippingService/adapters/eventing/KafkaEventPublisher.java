@@ -27,15 +27,17 @@ public class KafkaEventPublisher implements EventPublisher {
     @Override
     public void publish(Message message, String topic) {
         ProducerRecord<String, String> record;
-        try {
-            //TODO Use objectMapper to create a json string from the payload
-            //TODO Create new ProducerRecord
-            //TODO Add the message id as a header
-            //TODO Add the operation as a header
+        //try {
+            //TODO Make the publishing to Kafka possible
+            // Use objectMapper to create a json string from the message payload
+            // Create a new ProducerRecord
+            // Add the message id as a header
+            // Add the operation as a header
+        /* TODO Catch the JsonProcessingException thrown by the objectMapper
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        log.info("Publishing record {} to topic {}", record, topic);
-        //TODO Send the record with the kafkaTemplate
+        */
+        //TODO Send the record to Kafka with the kafkaTemplate
     }
 }

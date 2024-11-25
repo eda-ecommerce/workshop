@@ -46,7 +46,7 @@ public class ShipmentService {
             }
             //If all stock is reserved, mark the shipment as reserved
             shipmentEntity.reserve();
-            //TODO Create a new ShipmentRequested event
+            //TODO Create a new ShipmentReserved event
             //TODO Call the eventPublisher with that event
             //TODO Proceed in the KafkaEventPublisher (the implementation of the EventPublisher interface)
             //This saves the changed shipment to the repository
@@ -66,7 +66,6 @@ public class ShipmentService {
         var found = shipmentRepository.findById(orderId).orElse(
                 new Shipment(orderId, destination.toEntity(), null, null, ShipmentStatus.INCOMPLETE)
         );
-        //Probably should publish an event?
         eventPublisher.publish(new ShipmentAddressProvided(ShipmentDTO.fromEntity(found)), shipmentTopic);
         found.setDestination(destination.toEntity());
         shipmentRepository.save(found);
