@@ -30,13 +30,15 @@ public class BallJsonListener {
     //TODO listen to a ConsumerRecord from the topic
     public void listenJson(){
         var objectMapper = new ObjectMapper();
-        try {
-            //TODO Use objectMapper to create a Ball object from the json string
-            //TODO If the ball color is red, call the ballService to save a red ball directly from your new object
-        } //TODO Catch the JsonProcessingException thrown by the objectMapper
-        catch (JsonProcessingException e) {
+        //try {
+            //TODO Implement the colorListener method
+            // Use objectMapper to create a Ball object from the json string
+            // If the ball color is red, call the ballService to save a red ball directly from your new object
+        //
+        /* TODO Catch the JsonProcessingException thrown by the objectMapper
+        }catch (JsonProcessingException e) {
             log.error("Error processing ball", e);
         }
-        //Easiest way to test this sadly
+        */
     }
 }
