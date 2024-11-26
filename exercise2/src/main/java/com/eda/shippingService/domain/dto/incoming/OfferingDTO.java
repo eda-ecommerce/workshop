@@ -7,10 +7,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)public record ProductDTO (
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+public record OfferingDTO(
         @JsonProperty("id") UUID id,
-        @JsonProperty("color") String color,
-        @JsonProperty("description") String description,
+        @JsonProperty("productId") UUID productId,
+        @JsonProperty("quantity") int quantity,
+        @JsonProperty("price") double price,
         @JsonProperty("status") String status
-){
-}
+) {}
