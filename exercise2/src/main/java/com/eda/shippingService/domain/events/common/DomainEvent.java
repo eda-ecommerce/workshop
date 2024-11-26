@@ -2,7 +2,7 @@ package com.eda.shippingService.domain.events.common;
 
 import java.util.UUID;
 
-public abstract class DomainEvent<T> extends Message<T>{
+public abstract class DomainEvent<T> extends CustomMessage<T> {
     public DomainEvent(T payload) {
         super(payload);
     }

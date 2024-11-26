@@ -2,7 +2,7 @@ package com.eda.shippingService.domain.events.common;
 
 import java.util.UUID;
 
-public abstract class Command<T> extends Message<T> {
+public abstract class Command<T> extends CustomMessage<T> {
     public Command(T payload) {
         super(payload);
     }
