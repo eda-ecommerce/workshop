@@ -1,6 +1,7 @@
 package com.eda.ballpit.eventing;
 
 import com.eda.ballpit.adapters.eventing.BallJsonListener;
+import com.eda.ballpit.adapters.eventing.BallProducer;
 import com.eda.ballpit.adapters.repo.BallRepository;
 import com.eda.ballpit.application.service.BallService;
 import com.eda.ballpit.domain.entity.Ball;
@@ -10,10 +11,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
@@ -27,14 +31,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BallJsonTest extends KafkaTest {
     private final BallService ballService;
     private final KafkaTemplate<String, String> stringTemplate;
+    private final KafkaTemplate<String, Object> anyTemplate;
     private final BallRepository ballRepository;
     private final ObjectMapper objectMapper;
+    private final BallProducer ballProducer;
 
     @Autowired
-    public BallJsonTest(BallService ballService, KafkaTemplate<String, String> stringTemplate, BallRepository ballRepository) {
+    public BallJsonTest(BallService ballService, KafkaTemplate<String, String> stringTemplate, KafkaTemplate<String, Object> anyTemplate, BallRepository ballRepository, BallProducer ballProducer) {
         this.ballService = ballService;
         this.stringTemplate = stringTemplate;
+        this.anyTemplate = anyTemplate;
         this.ballRepository = ballRepository;
+        this.ballProducer = ballProducer;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -47,7 +55,7 @@ public class BallJsonTest extends KafkaTest {
 
     @Test
     void shouldThrowRedBall() throws InterruptedException, IOException {
-        this.ballService.throwBall("red");
+        ballProducer.produceBallJson(new Ball("red"));
         assertTrue(ballJsonListenerLatch.await(3, TimeUnit.SECONDS));
         assertEquals(1,getBallJsonRecords().size());
         var consumedBall = objectMapper.readValue(getBallJsonRecords().get(0).value(), Ball.class);
@@ -56,12 +64,10 @@ public class BallJsonTest extends KafkaTest {
 
     @Test
     void shouldSaveRedBall() {
-        stringTemplate.send("ball-json", """
-                                {
-                                "id": "00000000-0000-0000-0000-000000000123",
-                                "color": "red"
-                                }
-                """);
+        anyTemplate.send(MessageBuilder
+                .withPayload(new Ball("red"))
+                .setHeader(KafkaHeaders.TIMESTAMP, System.currentTimeMillis())
+                .setHeader(KafkaHeaders.TOPIC, "ball-json").build());
         waitAtMost(5, TimeUnit.SECONDS).untilAsserted(
                 () -> {
                     var list = StreamSupport.stream(ballRepository.findAll().spliterator(), false).toList();

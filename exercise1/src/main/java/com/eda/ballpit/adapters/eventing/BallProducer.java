@@ -19,25 +19,13 @@ public class BallProducer {
         this.ballKafkaTemplate = ballKafkaTemplate;
     }
     
-    public void produceBallColor(Ball ball){
+    public void produceBallString(Ball ball){
         log.info("Producing ball color: {}", ball.getColor());
         kafkaTemplate.send("ball-color", ball.getColor());
     }
 
     public void produceBallJson(Ball ball){
         log.info("Producing ball json: {}", ball);
-        var objectMapper = new ObjectMapper();
-        try {
-            var json = objectMapper.writeValueAsString(ball);
-            kafkaTemplate.send("ball-json", json);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            log.error("Stacktrace: {}", (Object[]) e.getStackTrace());
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void produceBallObject(Ball ball){
-        ballKafkaTemplate.send("ball-object", ball);
+        ballKafkaTemplate.send("ball-json", ball);
     }
 }
