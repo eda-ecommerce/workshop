@@ -1,7 +1,6 @@
 package com.eda.ballpit.adapters.eventing;
 
 import com.eda.ballpit.domain.entity.Ball;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -11,21 +10,20 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class BallProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final KafkaTemplate<String, Ball> ballKafkaTemplate;
+    private final KafkaTemplate<String, Ball> dontUseMeKafkaTemplate;
 
     @Autowired
-    public BallProducer(KafkaTemplate<String, String> kafkaTemplate, KafkaTemplate<String, Ball> ballKafkaTemplate) {
+    public BallProducer(KafkaTemplate<String, String> kafkaTemplate, KafkaTemplate<String, Ball> dontUseMeKafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
-        this.ballKafkaTemplate = ballKafkaTemplate;
+        this.dontUseMeKafkaTemplate = dontUseMeKafkaTemplate;
     }
     
     public void produceBallString(Ball ball){
-        log.info("Producing ball color: {}", ball.getColor());
-        kafkaTemplate.send("ball-color", ball.getColor());
+        //TODO Use the kafkaTemplate to sent the color of the ball to the topic "ball-color"
     }
 
     public void produceBallJson(Ball ball){
         log.info("Producing ball json: {}", ball);
-        ballKafkaTemplate.send("ball-json", ball);
+        dontUseMeKafkaTemplate.send("ball-json", ball);
     }
 }

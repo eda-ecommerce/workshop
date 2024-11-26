@@ -19,16 +19,12 @@ public class BallJsonListener {
     public BallJsonListener(BallService ballService) {
         this.ballService = ballService;
     }
-
-    @KafkaListener(topics = "ball-json", groupId = "ball-json")
-    public void listenJson(String data) {
-        try {
-            Ball ball = objectMapper.readValue(data, Ball.class);
-            if (ball.getColor().equals("red")) {
-                ballService.catchBall(ball);
-            }
-        } catch (Exception e) {
-            log.error("Error while processing ball json", e);
-        }
+    //TODO Implement the listenJson method
+    // Use the @KafkaListener annotation to listen to the topic "ball-json"
+    // Use a String to get the json from the topic
+    public void listenJson() {
+        //TODO Use the objectMapper to convert the json to a Ball object
+        // Check if the color ob the object is red if so,
+        // Call the ballService to save the ball
     }
 }
