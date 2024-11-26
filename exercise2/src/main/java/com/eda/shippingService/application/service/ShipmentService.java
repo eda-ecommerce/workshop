@@ -61,12 +61,12 @@ public class ShipmentService {
                 stockService.reserveStock(item.productId(), item.quantity());
             }
             shipmentEntity.reserve();
-            eventPublisher.publish(new ShipmentRequested(ShipmentDTO.fromEntity(shipmentEntity)), shipmentTopic);
+            
             shipmentRepository.save(shipmentEntity);
             return ShipmentDTO.fromEntity(shipmentEntity);
         } catch (NotEnoughStockException e) {
             shipmentEntity.setStatus(ShipmentStatus.ON_HOLD);
-            eventPublisher.publish(new InterventionNeeded(ShipmentDTO.fromEntity(shipmentEntity)), shipmentTopic);
+            
             shipmentRepository.save(shipmentEntity);
             return ShipmentDTO.fromEntity(shipmentEntity);
         }
@@ -82,7 +82,7 @@ public class ShipmentService {
         }
         found.addPackage(aPackage);
         shipmentRepository.save(found);
-        eventPublisher.publish(new ShipmentBoxed(found), shipmentTopic);
+        
         return ShipmentDTO.fromEntity(found);
     }
 
@@ -100,21 +100,18 @@ public class ShipmentService {
         found.assignTrackingNumber(UUID.randomUUID());
         found.send();
         shipmentRepository.save(found);
-        eventPublisher.publish(new ShipmentSent(found), shipmentTopic);
+        
         return ShipmentDTO.fromEntity(found);
     }
 
     public ShipmentDTO externalShipmentStatusUpdate(UpdateShipmentStatusDTO dto) {
         var found = shipmentRepository.findById(dto.orderId()).orElseThrow(() -> new IllegalStateException("Order with id " + dto.orderId() + " does not exist"));
         switch (dto.externalShipmentStatus()) {
-            case SHIPPED, IN_DELIVERY -> {
+            case SHIPPED, IN_DELIVERY,FAILED, RETURNED -> {
             }
             case DELIVERED -> {
-
-                eventPublisher.publish(new ShipmentDelivered(dto.orderId(), ShipmentDTO.fromEntity(found)), shipmentTopic);
+                found.delivered();
             }
-            case FAILED -> eventPublisher.publish(new InterventionNeeded(ShipmentDTO.fromEntity(found)), shipmentTopic);
-            case RETURNED -> eventPublisher.publish(new ShipmentReturned(ShipmentDTO.fromEntity(found)), shipmentTopic);
             default -> throw new IllegalStateException("Unexpected value: " + dto.externalShipmentStatus());
         }
         shipmentRepository.save(found);

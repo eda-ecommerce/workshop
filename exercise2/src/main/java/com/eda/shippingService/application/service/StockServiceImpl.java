@@ -37,7 +37,7 @@ public class StockServiceImpl implements StockService {
     public void registerNewProduct(UUID productId, int quantity) {
         Product product = new Product(productId, quantity);
         productRepository.save(product);
-        eventPublisher.publish(new AvailableStockAdjusted(StockDTO.fromProduct(product)), stockTopic);
+        
     }
 
     /**
@@ -51,11 +51,11 @@ public class StockServiceImpl implements StockService {
         var product = productRepository.findById(productID).orElseThrow(() -> new NoSuchElementException("No product exists with id: "+productID));
             try {
                 product.reserveStock(quantity);
-                eventPublisher.publish(new AvailableStockAdjusted(StockDTO.fromProduct(product)), stockTopic);
+                
                 productRepository.save(product);
                 if (product.isCritical()) publishStockCritical(product);
             } catch (NotEnoughStockException e){
-                eventPublisher.publish(new OutOfStock(product), stockTopic);
+                
                 log.error("Not enough stock of product {} to fulfill request for {} units. Current available stock: {}", productID, quantity, product.getAvailableStock());
                 throw e;
             }
@@ -70,7 +70,7 @@ public class StockServiceImpl implements StockService {
         if (quantity<=0) return;
         var product = productRepository.findById(productID).orElseThrow(() -> new NoSuchElementException("No product exists with id: "+productID));
         product.releaseStock(quantity);
-        eventPublisher.publish(new AvailableStockAdjusted(StockDTO.fromProduct(product)), stockTopic);
+        
         productRepository.save(product);
     }
 
@@ -82,7 +82,7 @@ public class StockServiceImpl implements StockService {
     public void increaseStock(UUID productID, int quantity) {
         var product = productRepository.findById(productID).orElseThrow(() -> new NoSuchElementException("No product exists with id: "+productID));
         product.increaseStock(quantity);
-        eventPublisher.publish(new AvailableStockAdjusted(StockDTO.fromProduct(product)), stockTopic);
+        
         productRepository.save(product);
         if (product.isCritical()) publishStockCritical(product);
     }
@@ -90,7 +90,7 @@ public class StockServiceImpl implements StockService {
     public void decreaseStock(UUID productID, int quantity) {
         var product = productRepository.findById(productID).orElseThrow(() -> new NoSuchElementException("No product exists with id: "+productID));
         product.decreaseStock(quantity);
-        eventPublisher.publish(new AvailableStockAdjusted(StockDTO.fromProduct(product)), stockTopic);
+        
         productRepository.save(product);
         if (product.isCritical()) publishStockCritical(product);    }
 
@@ -99,7 +99,7 @@ public class StockServiceImpl implements StockService {
         product.decreaseStock(quantity);
         // this check might be unnecessary, but we need to make sure that we do not release more stock than we have reserved
         product.releaseStock(quantity);
-        eventPublisher.publish(new AvailableStockAdjusted(StockDTO.fromProduct(product)), stockTopic);
+        
         productRepository.save(product);
         if (product.isCritical()) publishStockCritical(product);    }
 
@@ -114,7 +114,7 @@ public class StockServiceImpl implements StockService {
         var product = productRepository.findById(productID).orElseThrow(() -> new NoSuchElementException("No product exists with id: "+productID));
         product.setPhysicalStock(physicalStock);
         product.setReservedStock(reservedStock);
-        eventPublisher.publish(new AvailableStockAdjusted(StockDTO.fromProduct(product)), stockTopic);
+        
         productRepository.save(product);
     }
 
@@ -135,7 +135,7 @@ public class StockServiceImpl implements StockService {
     }
 
     private void publishStockCritical(Product product){
-        eventPublisher.publish(new StockCritical(StockDTO.fromProduct(product)), stockTopic);
+        
     }
 
 }
