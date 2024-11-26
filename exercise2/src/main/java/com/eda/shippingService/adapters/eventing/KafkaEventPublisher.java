@@ -1,19 +1,19 @@
 package com.eda.shippingService.adapters.eventing;
 
-import com.eda.shippingService.domain.events.common.Message;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.eda.shippingService.domain.events.common.CustomMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
 @SuppressWarnings("rawtypes")
 public class KafkaEventPublisher implements EventPublisher {
-    KafkaTemplate<String, String> kafkaTemplate;
+    KafkaTemplate<String, ?> kafkaTemplate;
     ObjectMapper objectMapper;
 
     @Autowired
@@ -23,22 +23,15 @@ public class KafkaEventPublisher implements EventPublisher {
     }
 
     @Override
-    public void publish(Message message, String topic) {
-        ProducerRecord<String, String> record;
-        try {
-            record = new ProducerRecord<>(topic, objectMapper
-                    .writeValueAsString(message.getMessageValue())
-            );
-            record.headers().add("messageId", message.getMessageId()
-                    .toString()
-                    .getBytes());
-            //To be removed
-            record.headers().add("operation", message.getClass().getSimpleName()
-                    .getBytes());
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        log.info("Publishing record {} to topic {}", record, topic);
-        kafkaTemplate.send(record);
+    public void publish(CustomMessage customMessage, String topic) {
+        var springMessage = MessageBuilder
+                .withPayload(customMessage.getMessageValue())
+                .setHeader("operation", customMessage.getClass().getSimpleName())
+                .setHeader("messageId", customMessage.getMessageId())
+                .setHeader(KafkaHeaders.TOPIC, topic)
+                .setHeader(KafkaHeaders.KEY, customMessage.getMessageKey())
+                .build();
+        log.info("Publishing message {} to topic {}", springMessage, topic);
+        kafkaTemplate.send(springMessage);
     }
 }
