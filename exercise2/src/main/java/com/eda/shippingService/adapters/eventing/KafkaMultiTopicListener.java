@@ -14,26 +14,32 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-//TODO Listen to the topics: order, product, offering, shopping-basket
 @Component
 public class KafkaMultiTopicListener {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final Logger log = LoggerFactory.getLogger(KafkaMultiTopicListener.class);
 
-    //TODO Listen to the order topic
-    // Use the @KafkaListener annotation to listen to the topic "order",
-    // Pass your container factory by method name in the containerFactory parameter
-    //Use the @Payload annotation in the Parameter to expect an OrderDTO
-    //For the bonus: @Headers is your friend, it will give you a Map of Strings and Objects
-     public void listenToOrderTopic() {
-        //TODO log the Payload to log.info
-        //TODO Bonus: log all headers to log.info
-        // Check if you did this correctly by running the tests under com.eda.shippingService.exercise2
+    @KafkaListener(topics = "order", containerFactory = "kafkaListenerContainerFactoryJson")
+    public void listenToOrderTopic(@Payload OrderDTO orderDTO, @Headers Map<String, Object> headers) {
+        log.info("Consumed order: {}", orderDTO);
+        for(String key : headers.keySet()) {
+            log.info("Header: {} = {}", key, headers.get(key));
+        }
     }
 
-    //TODO Listen to the other topics by copying your method and
-    // changing the topic name, data type and method name
-    //TODO: Product topic (ProductDTO)
-    //TODO: Offering topic (OfferingDTO)
-    //TODO: ShoppingBasket topic (ShoppingBasketDTO)
+    @KafkaListener(topics = "product", containerFactory = "kafkaListenerContainerFactoryJson")
+    public void listenToProductTopic(@Payload ProductDTO product) {
+        log.info("Consumed product: {}", product);
+    }
+
+    @KafkaListener(topics = "offering", containerFactory = "kafkaListenerContainerFactoryJson")
+    public void listenToOfferingTopic(@Payload OfferingDTO offering) {
+        log.info("Consumed offering: {}", offering);
+    }
+
+    @KafkaListener(topics = "shopping-basket", containerFactory = "kafkaListenerContainerFactoryJson")
+    public void listenToShoppingBasketTopic(@Payload ShoppingBasketDTO shoppingBasket) {
+        log.info("Consumed shopping basket: {}", shoppingBasket);
+    }
 }
