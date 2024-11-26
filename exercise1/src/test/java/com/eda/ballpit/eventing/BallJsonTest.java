@@ -78,7 +78,7 @@ public class BallJsonTest extends KafkaTest {
     }
 
     @Test
-    void shouldNotSaveRedBall() throws InterruptedException {
+    void shouldNotSavePinkBall() throws InterruptedException {
         stringTemplate.send("ball-json", """
                                 {
                                 "id": "00000000-0000-0000-0000-000000000123",
