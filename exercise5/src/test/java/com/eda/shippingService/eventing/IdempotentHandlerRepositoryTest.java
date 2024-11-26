@@ -2,7 +2,7 @@ package com.eda.shippingService.eventing;
 
 import com.eda.shippingService.ShippingServiceApplication;
 import com.eda.shippingService.application.eventHandlers.OrderRequestedEventHandler;
-import com.eda.shippingService.domain.dto.incoming.OrderRequestedDTO;
+import com.eda.shippingService.domain.dto.incoming.OrderPayload;
 import com.eda.shippingService.domain.entity.ProcessedMessage;
 import com.eda.shippingService.domain.events.OrderRequested;
 import com.eda.shippingService.adapters.repo.IdempotentHandlerRepository;
@@ -29,15 +29,15 @@ class IdempotentHandlerRepositoryTest {
         // Arrange
         UUID messageId = UUID.fromString("00000000-0000-0000-0000-000000000001");
         UUID orderId = UUID.fromString("00000000-0000-0000-0000-000000000002");
-        OrderRequestedDTO orderRequestedDTO = new OrderRequestedDTO(
+        OrderPayload orderPayload = new OrderPayload(
             orderId,
             UUID.randomUUID(),
             "2021-09-01",
             "CONFIRMED",
-            List.of(new OrderRequestedDTO.Product(UUID.randomUUID(), 1))
+            List.of(new OrderPayload.Product(UUID.randomUUID(), 1))
         );
         OrderRequested event = new OrderRequested(
-                null, messageId, System.currentTimeMillis(), orderRequestedDTO
+                null, messageId, System.currentTimeMillis(), orderPayload
         );
 
         // Act

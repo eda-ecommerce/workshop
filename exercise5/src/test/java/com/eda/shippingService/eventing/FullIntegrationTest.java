@@ -48,8 +48,25 @@ public class FullIntegrationTest extends KafkaTest {
     public FullIntegrationTest() throws IOException {
     }
 
-    @Transactional
     @Test
+    void shouldExecute() throws InterruptedException {
+        Thread.sleep(5000);
+        var record = new ProducerRecord<String, String>("order", orderRequestedPayload);
+        record.headers().add("operation", "requested".getBytes(StandardCharsets.UTF_8));
+        record.headers().add("messageId", quickUUID(123).toString().getBytes(StandardCharsets.UTF_8));
+        kafkaTemplate.send(record);
+        Thread.sleep(5000);
+    }
+
+    void shouldFind1Record() throws InterruptedException {
+        var record = new ProducerRecord<String, String>("product", productCreatedString);
+        record.headers().add("operation", "created".getBytes(StandardCharsets.UTF_8));
+        kafkaTemplate.send(record);
+        productListenerLatch.await();
+    }
+
+    @Transactional
+    //@Test
     void shouldRequestOrder() {
         //produce product event
         var record = new ProducerRecord<String, String>("product", productCreatedString);

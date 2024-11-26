@@ -33,13 +33,25 @@ public class TestHelpers {
         List<OrderLineItemDTO> requestedProducts = new ArrayList<>();
         ShipmentStatus status;
 
-        /**
-         * @param destinationStreet: the street of the destination address
-         */
-        public ShipmentDTOBuilder(UUID orderID, String destinationStreet, ShipmentStatus status) {
-            this.orderId = orderID;
-            this.destination = quickAddressDTO(destinationStreet);
+
+        public ShipmentDTOBuilder() {}
+
+        public ShipmentDTOBuilder withOrderId(UUID orderId) {
+            this.orderId = orderId;
+            return this;
+        }
+
+        public ShipmentDTOBuilder withStatus(ShipmentStatus status) {
             this.status = status;
+            return this;
+        }
+
+        /**
+         * @param street: the street of the destination address
+         */
+        public ShipmentDTOBuilder withDestination(String street) {
+            this.destination = quickAddressDTO(street);
+            return this;
         }
 
         public ShipmentDTOBuilder withPackageEmpty(UUID packageId, UUID trackingNumber) {

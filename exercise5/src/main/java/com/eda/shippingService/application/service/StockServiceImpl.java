@@ -49,17 +49,19 @@ public class StockServiceImpl implements StockService {
     public void reserveStock(UUID productID, int quantity) throws NotEnoughStockException {
         if (quantity<=0) return;
         var product = productRepository.findById(productID).orElseThrow(() -> new NoSuchElementException("No product exists with id: "+productID));
-            try {
+            //try {
                 //TODO reserve stock on product
-                //TODO publish AvailableStockAdjusted event
+                //Persist changes
                 productRepository.save(product);
+                //TODO publish AvailableStockAdjusted event
                 if (product.isCritical()) publishStockCritical(product);
+            /* TODO Catch NotEnoughStockException thrown by the product
             } catch (NotEnoughStockException e){
                 //We still need to notify someone, even though this should not happen
                 eventPublisher.publish(new OutOfStock(product), stockTopic);
                 log.error("Not enough stock of product {} to fulfill request for {} units. Current available stock: {}", productID, quantity, product.getAvailableStock());
                 throw e;
-            }
+            }*/
     }
 
     /**

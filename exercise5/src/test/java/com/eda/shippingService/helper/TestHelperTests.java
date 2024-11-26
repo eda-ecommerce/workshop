@@ -34,7 +34,11 @@ public class TestHelperTests {
                         List.of(new OrderLineItemDTO(quickUUID(3), 1)),
                         ShipmentStatus.CONFIRMED
                 );
-        ShipmentDTO actual = new TestHelpers.ShipmentDTOBuilder(quickUUID(1), "street", ShipmentStatus.CONFIRMED)
+        var dtoBuilder = new TestHelpers.ShipmentDTOBuilder();
+        ShipmentDTO actual = dtoBuilder
+                .withOrderId(quickUUID(1))
+                .withStatus( ShipmentStatus.CONFIRMED)
+                .withDestination("street")
                 .withRequestedProduct(quickUUID(3), 1)
                 .withPackageContents(quickUUID(999), quickUUID(3), List.of(new OrderLineItemDTO(quickUUID(3), 1)))
                 .build();

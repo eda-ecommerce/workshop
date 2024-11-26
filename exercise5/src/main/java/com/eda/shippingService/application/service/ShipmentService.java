@@ -42,10 +42,12 @@ public class ShipmentService {
         try {
             for (OrderLineItem item : shipmentEntity.getRequestedProducts()) {
                 //Try reserving stock for each item
+                //TODO: Follow this down to the StockService and publish an event there
                 stockService.reserveStock(item.productId(), item.quantity());
             }
             //If all stock is reserved, mark the shipment as reserved
             shipmentEntity.reserve();
+            //If you have a better Idea of where to call this, please do :)
             //TODO Create a new ShipmentReserved event
             //TODO Call the eventPublisher with that event
             //TODO Proceed in the KafkaEventPublisher (the implementation of the EventPublisher interface)

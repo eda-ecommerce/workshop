@@ -2,7 +2,7 @@ package com.eda.shippingService.eventing;
 
 import com.eda.shippingService.application.eventHandlers.OrderConfirmedEventHandler;
 import com.eda.shippingService.application.eventHandlers.OrderRequestedEventHandler;
-import com.eda.shippingService.domain.dto.incoming.OrderRequestedDTO;
+import com.eda.shippingService.domain.dto.incoming.OrderPayload;
 import com.eda.shippingService.domain.events.OrderRequested;
 import com.eda.shippingService.helper.KafkaTest;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,8 @@ public class KafkaOrderListenerTest extends KafkaTest {
     private KafkaTemplate<String,String > kafkaTemplate;
 
     @Test
-    void shouldCallOrderConfirmedWithValidEvent() throws IOException {
+    void shouldCallOrderConfirmedWithValidEvent() throws IOException, InterruptedException {
+        Thread.sleep(5000);
         Mockito.doNothing().when(orderConfirmedEventHandler).handle(Mockito.any());
         Mockito.doNothing().when(orderRequestedEventHandler).handle(Mockito.any());
         ArgumentCaptor<OrderRequested> requestedCaptor = ArgumentCaptor.forClass(OrderRequested.class);
@@ -51,13 +52,13 @@ public class KafkaOrderListenerTest extends KafkaTest {
                 .untilAsserted(
                         () -> Mockito.verify(orderRequestedEventHandler).handle(requestedCaptor.capture()));
         OrderRequested expected = new OrderRequested(null, quickUUID(111), 0,
-                new OrderRequestedDTO(
+                new OrderPayload(
                         quickUUID(123),
                         quickUUID(123456),
                         "20-12-24",
                         "InProcess",
                         List.of(
-                                new OrderRequestedDTO.Product(quickUUID(1234567), 10)
+                                new OrderPayload.Product(quickUUID(1234567), 10)
                         )
                 ));
         OrderRequested requestedEvent = requestedCaptor.getValue();
