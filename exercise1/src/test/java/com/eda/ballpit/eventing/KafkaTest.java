@@ -2,6 +2,7 @@ package com.eda.ballpit.eventing;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.beanutils.converters.DateTimeConverter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,12 +17,15 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Getter
 @Slf4j
 @SpringBootTest
-@EmbeddedKafka(topics = {"ball-color", "ball-json", "shipment"}, partitions = 1, kraft = true)
+@EmbeddedKafka(topics = {"ball-color", "ball-json"}, kraft = true)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @SuppressWarnings({"LoggingSimilarMessage"})
 public abstract class KafkaTest {
@@ -46,10 +50,10 @@ public abstract class KafkaTest {
 	@BeforeEach
 	void setUpEach() {
 		log.info("General Reset");
-		dummyContainer = kafkaListenerContainerFactory.createContainer("ball-color", "ball-json", "shipment");
+		dummyContainer = kafkaListenerContainerFactory.createContainer("ball-color", "ball-json");
 		dummyContainer.setupMessageListener(new DummyMessageListener());
 		dummyContainer.start();
-		ContainerTestUtils.waitForAssignment(dummyContainer, 3);
+		ContainerTestUtils.waitForAssignment(dummyContainer, 20);
 		ballColorListenerLatch.reset();
 		ballJsonListenerLatch.reset();
 		consumedShipmentRecords.clear();
@@ -77,7 +81,10 @@ public abstract class KafkaTest {
 	}
 
 	ConsumerRecord<String, String> processStringRecord(ConsumerRecord<String, String> record){
-		log.info("Received message from topic: {}", record.topic());
+		Instant instant = Instant.ofEpochSecond(record.timestamp());
+		var time = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+		log.info("Received message from topic: {} at: {}", record.topic(), time);
+		log.info("Partition: {}", record.partition());
 		log.info("---- Payload ----");
 		log.info(record.value());
 		log.info("-----------------");

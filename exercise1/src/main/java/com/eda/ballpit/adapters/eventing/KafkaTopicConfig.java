@@ -16,15 +16,11 @@ public class KafkaTopicConfig {
     @Value(value = "${spring.kafka.bootstrap-servers}")
     private String bootstrapAddress;
 
-    @Value(value = "${kafka.topic.ball}")
+    @Value(value = "${kafka.topic.ball-color}")
     private String ballTopic;
 
-    @Value(value = "${kafka.topic.stock}")
-    private String stockTopic;
-
-    @Value(value = "${kafka.topic.commands}")
-    private String commandTopic;
-
+    @Value(value = "${kafka.topic.ball-json}")
+    private String ballJsonTopic;
     @Bean
     public KafkaAdmin kafkaAdmin() {
         Map<String, Object> configs = new HashMap<>();
@@ -34,14 +30,11 @@ public class KafkaTopicConfig {
 
     @Bean
     public NewTopic ballTopic() {
-        return new NewTopic(ballTopic, 1, (short) 1);
+        return new NewTopic(ballTopic, 10, (short) 1);
     }
     @Bean
-    public NewTopic stockTopic() {
-        return new NewTopic(stockTopic, 1, (short) 1);
+    public NewTopic ballJsonTopic() {
+        return new NewTopic(ballJsonTopic, 10, (short) 1);
     }
-    @Bean
-    public NewTopic commandTopic() {
-        return new NewTopic(commandTopic, 1, (short) 1);
-    }
+
 }

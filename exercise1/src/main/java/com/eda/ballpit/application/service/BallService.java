@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+@SuppressWarnings("LoggingSimilarMessage")
 @Slf4j
 @Service
 public class BallService {
@@ -21,20 +22,25 @@ public class BallService {
         this.ballProducer = ballProducer;
     }
 
-    public void throwBall(String color){
+    public void throwBallString(String color){
         Ball ball = new Ball(color);
-        ballProducer.produceBallColor(ball);
+        ballProducer.produceBallString(ball);
+    }
+
+    public void throwBallJson(String color){
+        Ball ball = new Ball(color);
         ballProducer.produceBallJson(ball);
     }
 
-    public void saveBall(String color){
-        log.info("Saving ball with color: {}", color);
+    public void catchBall(String color){
+        log.info("Caught Ball with color: {}", color);
+        log.info("Saving ...");
         Ball ball = new Ball(color);
         ballPit.save(ball);
     }
 
-    public void saveBall(Ball ball){
-        log.info("Saving ball: {}", ball);
+    public void catchBall(Ball ball){
+        log.info("Saving ...");
         ballPit.save(ball);
     }
 
