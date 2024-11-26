@@ -7,5 +7,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface IdempotentHandlerRepository extends CrudRepository<ProcessedMessage, MessageCompositeKey> {
-    Optional<ProcessedMessage> findByMessageIdAndHandlerName(UUID messageId, String handlerName);
+    Optional<ProcessedMessage> findByMessageIdAndListenerName(UUID messageId, String handlerName);
 }

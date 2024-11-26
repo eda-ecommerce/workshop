@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public record OrderRequestedDTO(
+public record OrderPayload(
         @JsonProperty("id") UUID orderId,
         @JsonProperty("customerId") UUID customerId,
         @JsonProperty("orderDate") String orderDate,

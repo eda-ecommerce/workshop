@@ -18,11 +18,11 @@ public class ProcessedMessage {
     @Id
     private UUID messageId;
     @Id
-    private String handlerName;
+    private String listenerName;
 
-    public ProcessedMessage(UUID messageId, String handlerName) {
+    public ProcessedMessage(UUID messageId, String listenerName) {
         this.messageId = messageId;
-        this.handlerName = handlerName;
+        this.listenerName = listenerName;
     }
 
 }

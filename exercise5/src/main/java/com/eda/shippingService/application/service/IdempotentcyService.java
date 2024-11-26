@@ -19,12 +19,22 @@ public class IdempotentcyService {
         this.idempotentcyRepository = idempotentcyRepository;
     }
 
-    public boolean hasBeenProcessed(ConsumerRecord<String, String> record) {
-        return idempotentcyRepository.findByMessageIdAndHandlerName(UUID.fromString(new String(record.headers().lastHeader("messageId").value())), "listenToOrderTopic").isPresent();
+    public boolean hasBeenProcessed(ConsumerRecord<String, String> record, String handlerName) {
+        return idempotentcyRepository.findByMessageIdAndListenerName(UUID.fromString(new String(record.headers().lastHeader("messageId").value())), handlerName).isPresent();
+    }
+
+    /**
+     */
+    public boolean hasBeenProcessed(UUID messageId, String handlerName) {
+        return idempotentcyRepository.findByMessageIdAndListenerName(messageId, handlerName).isPresent();
     }
 
     public boolean hasBeenProcessed(Command command) {
-        return idempotentcyRepository.findByMessageIdAndHandlerName(command.getMessageId(), command.getClass().getSimpleName()).isPresent();
+        return idempotentcyRepository.findByMessageIdAndListenerName(command.getMessageId(), command.getClass().getSimpleName()).isPresent();
+    }
+
+    public void saveProcessedMessage(UUID messageId, String handlerName) {
+        idempotentcyRepository.save(new ProcessedMessage(messageId, handlerName));
     }
 
     public void saveProcessedMessage(Command command) {

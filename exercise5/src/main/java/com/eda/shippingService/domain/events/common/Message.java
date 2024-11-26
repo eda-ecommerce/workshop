@@ -1,14 +1,18 @@
 package com.eda.shippingService.domain.events.common;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Getter
 @JsonSerialize
 @JsonIgnoreProperties
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@NoArgsConstructor(force = true)
 public abstract class Message<T> {
     private final UUID messageId;
     private final UUID messageKey;
