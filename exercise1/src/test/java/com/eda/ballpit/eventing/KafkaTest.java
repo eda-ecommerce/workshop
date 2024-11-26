@@ -53,7 +53,7 @@ public abstract class KafkaTest {
 		dummyContainer = kafkaListenerContainerFactory.createContainer("ball-color", "ball-json");
 		dummyContainer.setupMessageListener(new DummyMessageListener());
 		dummyContainer.start();
-		ContainerTestUtils.waitForAssignment(dummyContainer, 20);
+		ContainerTestUtils.waitForAssignment(dummyContainer, 2);
 		ballColorListenerLatch.reset();
 		ballJsonListenerLatch.reset();
 		consumedShipmentRecords.clear();

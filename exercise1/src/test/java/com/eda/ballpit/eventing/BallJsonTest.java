@@ -63,7 +63,8 @@ public class BallJsonTest extends KafkaTest {
     }
 
     @Test
-    void shouldSaveRedBall() {
+    void shouldSaveRedBall() throws InterruptedException {
+        Thread.sleep(2000);
         anyTemplate.send(MessageBuilder
                 .withPayload(new Ball("red"))
                 .setHeader(KafkaHeaders.TIMESTAMP, System.currentTimeMillis())
