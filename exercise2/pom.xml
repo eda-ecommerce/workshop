@@ -27,7 +27,7 @@
 	</scm>
 	<properties>
 		<java.version>22</java.version>
-		<vaadin.version>24.4.11</vaadin.version>
+
 		<avro.version>1.11.1</avro.version>
 		<confluent.version>7.5.3</confluent.version>
 	</properties>
@@ -54,19 +54,6 @@
 						</exclude>
 					</excludes>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-maven-plugin</artifactId>
-				<version>${vaadin.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>prepare-frontend</goal>
-							<goal>build-frontend</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.avro</groupId>
