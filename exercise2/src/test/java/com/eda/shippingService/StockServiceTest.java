@@ -310,7 +310,7 @@ public class StockServiceTest {
     }
 
     @SuppressWarnings("unchecked")
-    //TODO: This test is not working
+
     //@Test
     public void shouldBatchAdjustStockWithAHashMapOfProducts(){
         // Given
@@ -340,11 +340,10 @@ public class StockServiceTest {
         Mockito.when(productRepository.findById(testProductId1)).thenReturn(Optional.of(testProduct1));
         Mockito.when(productRepository.findById(testProductId2)).thenReturn(Optional.of(testProduct2));
         Mockito.when(productRepository.findById(testProductId3)).thenReturn(Optional.of(testProduct3));
-        //TODO: this is not invoked
+
         Mockito.doAnswer(invocation -> {
             Map<UUID, Integer> testMap = invocation.getArgument(0);
 
-            // TODO: not really satisfied with these assertions
             for(UUID id: testMap.keySet()){
                 System.out.println(id);
                 if (id == testProductId1)
@@ -397,7 +396,6 @@ public class StockServiceTest {
     }
 
     //@Test
-    //TODO: this test is not working
     @SuppressWarnings("unchecked")
     public void shouldBatchAdjustStockWithAListOfOrderLineItems() {
         // Given
@@ -427,7 +425,6 @@ public class StockServiceTest {
         Mockito.when(productRepository.findById(testProductId1)).thenReturn(Optional.of(testProduct1));
         Mockito.when(productRepository.findById(testProductId2)).thenReturn(Optional.of(testProduct2));
         Mockito.when(productRepository.findById(testProductId3)).thenReturn(Optional.of(testProduct3));
-        // TODO: this is not invoked
         Mockito.doAnswer(invocation -> {
             List<OrderLineItem> testOrderLineItem = invocation.getArgument(0);
 

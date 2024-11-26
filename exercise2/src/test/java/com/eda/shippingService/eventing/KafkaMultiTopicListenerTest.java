@@ -24,7 +24,7 @@ import static com.eda.shippingService.TestHelpers.quickUUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
-public class KafkaOrderListenerTest extends KafkaTest {
+public class KafkaMultiTopicListenerTest extends KafkaTest {
     @MockBean
     private OrderConfirmedEventHandler orderConfirmedEventHandler;
     @MockBean

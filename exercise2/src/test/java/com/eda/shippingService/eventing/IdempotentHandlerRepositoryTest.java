@@ -7,6 +7,7 @@ import com.eda.shippingService.domain.entity.ProcessedMessage;
 import com.eda.shippingService.domain.events.OrderRequested;
 import com.eda.shippingService.adapters.repo.IdempotentHandlerRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -23,6 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class IdempotentHandlerRepositoryTest {
     @Autowired
     private IdempotentHandlerRepository idempotentHandlerRepository;
+
+    @BeforeEach
+    void setup() {
+        idempotentHandlerRepository.deleteAll();
+    }
 
     @Test
     void shouldFindEntry() {
@@ -45,5 +51,26 @@ class IdempotentHandlerRepositoryTest {
 
         // Assert
         assertTrue(idempotentHandlerRepository.findByMessageIdAndHandlerName(event.getMessageId(), OrderRequestedEventHandler.class.getSimpleName()).isPresent());
+    }
+
+    @Test
+    void shouldFail(){
+        UUID messageId = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        UUID orderId = UUID.fromString("00000000-0000-0000-0000-000000000002");
+        OrderRequestedDTO orderRequestedDTO = new OrderRequestedDTO(
+                orderId,
+                UUID.randomUUID(),
+                "2021-09-01",
+                "CONFIRMED",
+                List.of(new OrderRequestedDTO.Product(UUID.randomUUID(), 1))
+        );
+        OrderRequested event = new OrderRequested(
+                null, messageId, System.currentTimeMillis(), orderRequestedDTO
+        );
+
+        // Act
+        idempotentHandlerRepository.save(new ProcessedMessage(event.getMessageId(), OrderRequestedEventHandler.class.getSimpleName()));
+        idempotentHandlerRepository.save(new ProcessedMessage(event.getMessageId(), OrderRequestedEventHandler.class.getSimpleName()));
+
     }
 }
