@@ -2,6 +2,7 @@ package com.eda.ballpit.adapters.eventing;
 
 import com.eda.ballpit.application.service.BallService;
 import com.eda.ballpit.domain.entity.Ball;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +20,17 @@ public class BallJsonListener {
     public BallJsonListener(BallService ballService) {
         this.ballService = ballService;
     }
-    //TODO Implement the listenJson method
-    // Use the @KafkaListener annotation to listen to the topic "ball-json"
-    // Use a String to get the json from the topic
-    public void listenJson() {
-        //TODO Use the objectMapper to convert the json to a Ball object
-        // Check if the color ob the object is red if so,
-        // Call the ballService to save the ball
+    @KafkaListener(topics = "ball-json")
+    public void listenJson(String data) {
+        try {
+            var ball = objectMapper.readValue(data, Ball.class);
+            if (ball.getColor().equals("red")) {
+                ballService.catchBall(ball);
+            } else {
+                log.info("Received a ball of color: {}", ball.getColor());
+            }
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

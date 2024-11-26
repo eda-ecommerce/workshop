@@ -19,7 +19,8 @@ public class BallProducer {
     }
     
     public void produceBallString(Ball ball){
-        //TODO Use the kafkaTemplate to sent the color of the ball to the topic "ball-color"
+        log.info("Producing ball string: {}", ball);
+        kafkaTemplate.send("ball-color", ball.getColor());
     }
 
     public void produceBallJson(Ball ball){

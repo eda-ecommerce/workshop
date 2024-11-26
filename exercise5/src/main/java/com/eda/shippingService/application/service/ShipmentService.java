@@ -24,15 +24,13 @@ import java.util.stream.StreamSupport;
 @Service
 public class ShipmentService {
     private final ShipmentRepository shipmentRepository;
-    private final EventPublisher eventPublisher;
     private final StockService stockService;
     @Value("${kafka.topic.shipment}")
     private String shipmentTopic;
 
     @Autowired
-    public ShipmentService(ShipmentRepository shipmentRepository, EventPublisher eventPublisher, StockServiceImpl stockService) {
+    public ShipmentService(ShipmentRepository shipmentRepository, StockServiceImpl stockService) {
         this.shipmentRepository = shipmentRepository;
-        this.eventPublisher = eventPublisher;
         this.stockService = stockService;
     }
 
@@ -68,7 +66,6 @@ public class ShipmentService {
         var found = shipmentRepository.findById(orderId).orElse(
                 new Shipment(orderId, destination.toEntity(), null, null, ShipmentStatus.INCOMPLETE)
         );
-        eventPublisher.publish(new ShipmentAddressProvided(ShipmentDTO.fromEntity(found)), shipmentTopic);
         found.setDestination(destination.toEntity());
         shipmentRepository.save(found);
         return ShipmentDTO.fromEntity(found);
@@ -90,7 +87,6 @@ public class ShipmentService {
         }
         found.addPackage(aPackage);
         shipmentRepository.save(found);
-        eventPublisher.publish(new ShipmentBoxed(found), shipmentTopic);
         return ShipmentDTO.fromEntity(found);
     }
 
@@ -108,7 +104,6 @@ public class ShipmentService {
         found.assignTrackingNumber(UUID.randomUUID());
         found.send();
         shipmentRepository.save(found);
-        eventPublisher.publish(new ShipmentSent(found), shipmentTopic);
         return ShipmentDTO.fromEntity(found);
     }
 
@@ -119,7 +114,6 @@ public class ShipmentService {
             }
             case DELIVERED -> {
 
-                eventPublisher.publish(new ShipmentDelivered(dto.orderId(), ShipmentDTO.fromEntity(found)), shipmentTopic);
             }
             case FAILED -> eventPublisher.publish(new InterventionNeeded(ShipmentDTO.fromEntity(found)), shipmentTopic);
             case RETURNED -> eventPublisher.publish(new ShipmentReturned(ShipmentDTO.fromEntity(found)), shipmentTopic);

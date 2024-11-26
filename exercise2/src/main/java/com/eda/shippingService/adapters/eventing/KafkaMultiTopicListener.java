@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
@@ -21,11 +22,13 @@ public class KafkaMultiTopicListener {
     private final Logger log = LoggerFactory.getLogger(KafkaMultiTopicListener.class);
 
     @KafkaListener(topics = "order", containerFactory = "kafkaListenerContainerFactoryJson")
-    public void listenToOrderTopic(@Payload OrderDTO orderDTO, @Headers Map<String, Object> headers) {
+    public void listenToOrderTopic(@Payload OrderDTO orderDTO, @Header("operation") String operation, @Header("messageId") String messageId, @Headers Map<String, Object> headers) {
         log.info("Consumed order: {}", orderDTO);
         for(String key : headers.keySet()) {
             log.info("Header: {} = {}", key, headers.get(key));
         }
+        log.info("Operation: {}", operation);
+        log.info("MessageId: {}", messageId);
     }
 
     @KafkaListener(topics = "product", containerFactory = "kafkaListenerContainerFactoryJson")

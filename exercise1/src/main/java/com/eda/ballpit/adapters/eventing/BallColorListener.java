@@ -16,12 +16,12 @@ public class BallColorListener {
         this.ballService = ballService;
     }
 
-    //TODO Implement the listenToColor method
-    // Use the @KafkaListener annotation to listen to the topic "ball-color"
-    // Use a String, or appropriate ConsumerRecord to get the color from the topic
-    // Log anything you deem important (log.info,error,warn)
-    public void listenToColor() {
-        //TODO If the color is red, call the ballService to save a red ball
-        // Otherwise do nothing (or log it if you want)
+    @KafkaListener(topics = "ball-color")
+    public void listenToColor(String data) {
+        if (data.equals("red")) {
+            ballService.catchBall(data);
+        } else {
+            log.info("Received a ball of color: {}", data);
+        }
     }
 }

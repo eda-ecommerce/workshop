@@ -25,15 +25,13 @@ import java.util.stream.StreamSupport;
 @Service
 public class ShipmentService {
     private final ShipmentRepository shipmentRepository;
-    private final EventPublisher eventPublisher;
     private final StockService stockService;
     @Value("${kafka.topic.shipment}")
     private String shipmentTopic;
 
     @Autowired
-    public ShipmentService(ShipmentRepository shipmentRepository, EventPublisher eventPublisher, StockServiceImpl stockService) {
+    public ShipmentService(ShipmentRepository shipmentRepository, StockServiceImpl stockService) {
         this.shipmentRepository = shipmentRepository;
-        this.eventPublisher = eventPublisher;
         this.stockService = stockService;
     }
 
@@ -61,12 +59,12 @@ public class ShipmentService {
                 stockService.reserveStock(item.productId(), item.quantity());
             }
             shipmentEntity.reserve();
-            
+
             shipmentRepository.save(shipmentEntity);
             return ShipmentDTO.fromEntity(shipmentEntity);
         } catch (NotEnoughStockException e) {
             shipmentEntity.setStatus(ShipmentStatus.ON_HOLD);
-            
+
             shipmentRepository.save(shipmentEntity);
             return ShipmentDTO.fromEntity(shipmentEntity);
         }
@@ -82,7 +80,7 @@ public class ShipmentService {
         }
         found.addPackage(aPackage);
         shipmentRepository.save(found);
-        
+
         return ShipmentDTO.fromEntity(found);
     }
 
@@ -100,7 +98,7 @@ public class ShipmentService {
         found.assignTrackingNumber(UUID.randomUUID());
         found.send();
         shipmentRepository.save(found);
-        
+
         return ShipmentDTO.fromEntity(found);
     }
 
