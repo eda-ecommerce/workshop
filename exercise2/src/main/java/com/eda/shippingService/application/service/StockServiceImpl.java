@@ -1,17 +1,15 @@
 package com.eda.shippingService.application.service;
 
-import com.eda.shippingService.adapters.eventing.EventPublisher;
 import com.eda.shippingService.application.service.exception.NotEnoughStockException;
-import com.eda.shippingService.domain.dto.outgoing.StockDTO;
 import com.eda.shippingService.domain.entity.OrderLineItem;
 import com.eda.shippingService.domain.entity.Product;
-import com.eda.shippingService.domain.events.AvailableStockAdjusted;
-import com.eda.shippingService.domain.events.OutOfStock;
-import com.eda.shippingService.domain.events.StockCritical;
 import com.eda.shippingService.adapters.repo.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,21 +21,21 @@ import java.util.UUID;
 @Slf4j
 public class StockServiceImpl implements StockService {
     private final ProductRepository productRepository;
-    private final EventPublisher eventPublisher;
+
+    private final KafkaTemplate<String, ?> kafkaTemplate;
 
     @Value("${kafka.topic.stock}")
     private String stockTopic;
 
     @Autowired
-    public StockServiceImpl(ProductRepository productRepository, EventPublisher eventPublisher) {
+    public StockServiceImpl(ProductRepository productRepository, KafkaTemplate<String, ?> kafkaTemplate) {
         this.productRepository = productRepository;
-        this.eventPublisher = eventPublisher;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     public void registerNewProduct(UUID productId, int quantity) {
         Product product = new Product(productId, quantity);
         productRepository.save(product);
-        
     }
 
     /**
@@ -51,7 +49,15 @@ public class StockServiceImpl implements StockService {
         var product = productRepository.findById(productID).orElseThrow(() -> new NoSuchElementException("No product exists with id: "+productID));
             try {
                 product.reserveStock(quantity);
-                
+                kafkaTemplate.send(
+                        MessageBuilder
+                                .withPayload(product)
+                                .setHeader("operation", "stockReserved")
+                                .setHeader("messageId", UUID.randomUUID().toString())
+                                .setHeader(KafkaHeaders.TOPIC, stockTopic)
+                                .setHeader(KafkaHeaders.TIMESTAMP, System.currentTimeMillis())
+                                .build()
+                );
                 productRepository.save(product);
                 if (product.isCritical()) publishStockCritical(product);
             } catch (NotEnoughStockException e){

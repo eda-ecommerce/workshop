@@ -1,7 +1,5 @@
 package com.eda.shippingService.application.service;
 
-import com.eda.shippingService.adapters.eventing.EventPublisher;
-import com.eda.shippingService.adapters.repo.PackageRepository;
 import com.eda.shippingService.application.service.exception.IncompleteContentException;
 import com.eda.shippingService.application.service.exception.NotEnoughStockException;
 import com.eda.shippingService.domain.dto.incoming.IncomingPackageDTO;
@@ -13,7 +11,6 @@ import com.eda.shippingService.domain.entity.OrderLineItem;
 import com.eda.shippingService.domain.entity.Shipment;
 import com.eda.shippingService.domain.entity.ShipmentStatus;
 import com.eda.shippingService.adapters.repo.ShipmentRepository;
-import com.eda.shippingService.domain.events.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,15 +22,13 @@ import java.util.stream.StreamSupport;
 @Service
 public class ShipmentService {
     private final ShipmentRepository shipmentRepository;
-    private final EventPublisher eventPublisher;
     private final StockService stockService;
     @Value("${kafka.topic.shipment}")
     private String shipmentTopic;
 
     @Autowired
-    public ShipmentService(ShipmentRepository shipmentRepository, EventPublisher eventPublisher, StockServiceImpl stockService) {
+    public ShipmentService(ShipmentRepository shipmentRepository, StockServiceImpl stockService) {
         this.shipmentRepository = shipmentRepository;
-        this.eventPublisher = eventPublisher;
         this.stockService = stockService;
     }
 
