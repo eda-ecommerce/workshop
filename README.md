@@ -1,1 +1,7 @@
-npx eda-ecommerce-cli
+# Workshop EDA Ecommerce
+
+Requirements:
+`docker`
+`docker-compose / docker compose`
+`node --version ` > 18
+`node`

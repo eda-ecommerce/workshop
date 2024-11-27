@@ -5,5 +5,5 @@ import java.util.UUID;
 
 public class MessageCompositeKey implements Serializable {
     private UUID messageId;
-    private String handlerName;
+    private String listenerName;
 }

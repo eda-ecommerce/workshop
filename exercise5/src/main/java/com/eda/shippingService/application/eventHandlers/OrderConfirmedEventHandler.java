@@ -24,7 +24,7 @@ public class OrderConfirmedEventHandler implements EventHandler<OrderConfirmed> 
     @Override
     @Transactional
     public void handle(OrderConfirmed event) {
-        var found = idempotentHandlerRepository.findByMessageIdAndHandlerName(event.getMessageId(), this.getClass().getSimpleName());
+        var found = idempotentHandlerRepository.findByMessageIdAndListenerName(event.getMessageId(), this.getClass().getSimpleName());
         if (found.isPresent()) {
             return;
         }

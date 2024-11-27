@@ -23,7 +23,7 @@ public class BoxShipmentHandler implements CommandHandler<BoxShipment> {
 
     @Transactional
     public void handle(BoxShipment command){
-        if(idempotentHandlerRepository.findByMessageIdAndHandlerName(command.getMessageId(), this.getClass().getSimpleName()).isPresent()){
+        if(idempotentHandlerRepository.findByMessageIdAndListenerName(command.getMessageId(), this.getClass().getSimpleName()).isPresent()){
             return;
         }
         var dto = new IncomingPackageDTO(

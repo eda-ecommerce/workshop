@@ -26,7 +26,7 @@ public class OrderRequestedEventHandler implements EventHandler<OrderRequested> 
     @Transactional
     public void handle(OrderRequested event) {
         log.info("Handling OrderConfirmedEvent with ID: {}", event.getMessageId());
-        if (idempotentHandlerRepository.findByMessageIdAndHandlerName(event.getMessageId(), this.getClass().getSimpleName()).isPresent()) {
+        if (idempotentHandlerRepository.findByMessageIdAndListenerName(event.getMessageId(), this.getClass().getSimpleName()).isPresent()) {
             log.info("OrderConfirmedEvent with ID: {} already processed", event.getMessageId());
             return;
         }
