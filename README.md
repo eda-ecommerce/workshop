@@ -1,0 +1,1 @@
+npx eda-ecommerce-cli
