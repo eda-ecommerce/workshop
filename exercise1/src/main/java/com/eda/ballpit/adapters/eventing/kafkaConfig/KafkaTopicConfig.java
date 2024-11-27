@@ -30,11 +30,11 @@ public class KafkaTopicConfig {
 
     @Bean
     public NewTopic ballTopic() {
-        return new NewTopic(ballTopic, 10, (short) 1);
+        return new NewTopic(ballTopic, 1, (short) 1);
     }
     @Bean
     public NewTopic ballJsonTopic() {
-        return new NewTopic(ballJsonTopic, 10, (short) 1);
+        return new NewTopic(ballJsonTopic, 1, (short) 1);
     }
 
 }
