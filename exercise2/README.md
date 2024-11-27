@@ -7,4 +7,4 @@ Locations of todos:
 - com.eda.shippingService.adapters.eventing.MultiTopicListener
 
 run this for the CLI:
-```npx eda-ecommerce-cli create-random-order```
+```npx eda-ecommerce-cli request-random-order```
